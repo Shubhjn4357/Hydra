@@ -1,21 +1,44 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# 🌊 Hydra — Premium Aesthetic Hydration Tracker & Respiration Sanctuary 🐳✨
 
-# Run and deploy your AI Studio app
+**Hydra** is a beautifully responsive, modern, offline-first Water Intake Logger & Mindful Sanctuary for Android. Configured under Jetpack Compose and Material 3 design systems, it elevates daily water logging into a delightful, gamified wellness experience.
 
-This contains everything you need to run your app locally.
+---
 
-View your app in AI Studio: https://ai.studio/apps/cb379d10-66f3-4367-b418-8bce1635b90a
+## 🎨 Visual Identity & Dynamic Theme
 
-## Run Locally
+- **Frosted-Glass Aesthetic**: Symmetrical container card alignments, beautiful rounded borders, and dynamic glowing background gradients.
+- **Sensory-Symmetrical Bottom Bar**: A custom, floating, glass-morphic bottom tab layout mapping **Logger 💧**, **Containers 🥤**, **Meditation 🧘‍♂️**, and **Analytics 📊**.
+- **Edge-to-Edge Canvas**: Deep-slate dark design themes and vibrant sky-blue accents designed as modern dark and light layouts.
 
-**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
+---
 
+## 🚀 Key Production Capabilities & Unique Additions
 
-1. Open Android Studio
-2. Select **Open** and choose the directory containing this project
-3. Allow Android Studio to fix any incompatibilities as it imports the project.
-4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
-5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
-6. Run the app on an emulator or physical device
+### 1. 🐳 Splashtastic Goal Celebration Overlay
+- Spawns a floating stream of animated emojis (`💦`, `🐳`, `🌊`, `✨`, `🐋`, `💧`, `🫧`) rising dynamically from the bottom of the screen upon reaching or exceeding 100% of your daily hydration goal. Perfect celebrate of milestone success!
+
+### 2. 🥃 Personality Preset Container Tiles
+- Four humorous preset containers with delightful titles:
+  - **50 ml** ➔ *Teaspoon of dew* 💧
+  - **250 ml** ➔ *Moderate glug-glug* 🥛
+  - **500 ml** ➔ *Absolute hydrator* 🫙
+  - **1000 ml** ➔ *Submarine gulp* 🐳
+- A unified **Custom volume dialog 🧪** card is also included to easily log precise measurements.
+
+### 3. 📳 Sensory Haptic Squishes
+- Satisfying haptic feedback patterns (dual local click feedback combined with immediate mechanical short vibrations using the system `Vibrator`) when clicking on container buttons, making you feel the literal splash inside your phone.
+
+### 4. 🧘‍♂️ Mindfulness Respiration Sanctum & Offline Sound Synthesis
+- **Pranayama Box Breathing (4-4-4-4)**: Symmetrical visual respirator that guides your inhalation, holding pattern, exhalation, and stillness hold with smooth gradient shift animations.
+- **Generative Chord Synthesizer**: A built-in, lightweight real-time audio wave generator using Kotlin's low-level `AudioTrack`. It synthesizes lush, soothing perfect-fifth root drone sounds (110Hz A2 + 165Hz E3 perfect fifth + 220Hz Octave A3 with dual sinusoidal LFO swelling) to induce instant calm. No heavy MP3 files, fully offline!
+
+### 5. 🗄️ Room Database Persistence
+- Tracks real-time log entries with sub-millisecond precision, displaying comprehensive analytics, day-by-day historic log breakdowns, and responsive stats cards.
+
+---
+
+## 🛠️ Architecture Summary
+
+- **Architecture Pattern**: Modern MVVM (Model-View-ViewModel) + Single Source of Truth Repository pattern.
+- **Development Tooling**: Kotlin, Jetpack Compose, Coroutines, Flow, Kotlin Symbol Processing (KSP), and the Material 3 UI design toolkit.
+- **State Flow Engine**: Standard `MutableStateFlow` structures collected with type-safe `collectAsStateWithLifecycle` to prevent visual state leaks during system changes.

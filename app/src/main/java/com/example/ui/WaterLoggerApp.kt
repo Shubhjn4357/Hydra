@@ -72,106 +72,122 @@ fun WaterLoggerApp(
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-        ) {
-            // Animated Screen content switching
-            AnimatedContent(
-                targetState = currentTab,
-                transitionSpec = {
-                    val targetOrder = when (targetState) {
-                        AppTab.LOG -> 0
-                        AppTab.CONTAINERS -> 1
-                        AppTab.STATS -> 2
-                    }
-                    val initialOrder = when (initialState) {
-                        AppTab.LOG -> 0
-                        AppTab.CONTAINERS -> 1
-                        AppTab.STATS -> 2
-                    }
-                    if (targetOrder > initialOrder) {
-                        slideInHorizontally { width -> width } + fadeIn() togetherWith
-                                slideOutHorizontally { width -> -width } + fadeOut()
-                    } else {
-                        slideInHorizontally { width -> -width } + fadeIn() togetherWith
-                                slideOutHorizontally { width -> width } + fadeOut()
-                    }.using(
-                        SizeTransform(clip = false)
-                    )
-                },
-                modifier = Modifier.weight(1f),
-                label = "ScreenTransition"
-            ) { tab ->
-                when (tab) {
-                    AppTab.LOG -> {
-                        HydrationLogScreen(
-                            totalIntake = totalIntake,
-                            goal = goal,
-                            onLogWater = { viewModel.addWaterLog(it) },
-                            onShowCustomDialog = { showCustomLogDialog = true },
-                            onMenuClick = { showGoalDialog = true },
-                            onDarkThemeToggle = onDarkThemeToggle,
-                            isDarkTheme = isDarkTheme,
-                            dateLabel = selectedDateLabel,
-                            onPreviousDay = { viewModel.selectPreviousDay() },
-                            onNextDay = { viewModel.selectNextDay() }
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+            ) {
+                // Animated Screen content switching
+                AnimatedContent(
+                    targetState = currentTab,
+                    transitionSpec = {
+                        val targetOrder = when (targetState) {
+                            AppTab.LOG -> 0
+                            AppTab.CONTAINERS -> 1
+                            AppTab.MEDITATION -> 2
+                            AppTab.STATS -> 3
+                        }
+                        val initialOrder = when (initialState) {
+                            AppTab.LOG -> 0
+                            AppTab.CONTAINERS -> 1
+                            AppTab.MEDITATION -> 2
+                            AppTab.STATS -> 3
+                        }
+                        if (targetOrder > initialOrder) {
+                            slideInHorizontally { width -> width } + fadeIn() togetherWith
+                                    slideOutHorizontally { width -> -width } + fadeOut()
+                        } else {
+                            slideInHorizontally { width -> -width } + fadeIn() togetherWith
+                                    slideOutHorizontally { width -> width } + fadeOut()
+                        }.using(
+                            SizeTransform(clip = false)
                         )
-                    }
-                    AppTab.CONTAINERS -> {
-                        QuickContainersScreen(
-                            onLogWater = { viewModel.addWaterLog(it) },
-                            onShowCustomDialog = { showCustomLogDialog = true },
-                            onBackClick = { currentTab = AppTab.LOG },
-                            isDarkTheme = isDarkTheme,
-                            onMenuClick = { showGoalDialog = true },
-                            dateLabel = selectedDateLabel,
-                            onPreviousDay = { viewModel.selectPreviousDay() },
-                            onNextDay = { viewModel.selectNextDay() }
-                        )
-                    }
-                    AppTab.STATS -> {
-                        statsScreenView(
-                            totalIntake = totalIntake,
-                            goal = goal,
-                            logs = logs,
-                            onLogWater = { viewModel.addWaterLog(it) },
-                            onShowCustomDialog = { showCustomLogDialog = true },
-                            onDeleteLog = { viewModel.deleteWaterLog(it) },
-                            showGoalDialog = { showGoalDialog = true },
-                            onBackClick = { currentTab = AppTab.LOG },
-                            remindersEnabled = remindersEnabled,
-                            intervalHours = intervalHours,
-                            onToggleReminders = { enable ->
-                                if (enable) {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                        val status = ContextCompat.checkSelfPermission(
-                                            context,
-                                            Manifest.permission.POST_NOTIFICATIONS
-                                        )
-                                        if (status == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                                            viewModel.toggleReminders(true)
+                    },
+                    modifier = Modifier.weight(1f),
+                    label = "ScreenTransition"
+                ) { tab ->
+                    when (tab) {
+                        AppTab.LOG -> {
+                            HydrationLogScreen(
+                                totalIntake = totalIntake,
+                                goal = goal,
+                                onLogWater = { viewModel.addWaterLog(it) },
+                                onShowCustomDialog = { showCustomLogDialog = true },
+                                onMenuClick = { showGoalDialog = true },
+                                onDarkThemeToggle = onDarkThemeToggle,
+                                isDarkTheme = isDarkTheme,
+                                dateLabel = selectedDateLabel,
+                                onPreviousDay = { viewModel.selectPreviousDay() },
+                                onNextDay = { viewModel.selectNextDay() }
+                            )
+                        }
+                        AppTab.CONTAINERS -> {
+                            QuickContainersScreen(
+                                onLogWater = { viewModel.addWaterLog(it) },
+                                onShowCustomDialog = { showCustomLogDialog = true },
+                                onBackClick = { currentTab = AppTab.LOG },
+                                isDarkTheme = isDarkTheme,
+                                onMenuClick = { showGoalDialog = true },
+                                dateLabel = selectedDateLabel,
+                                onPreviousDay = { viewModel.selectPreviousDay() },
+                                onNextDay = { viewModel.selectNextDay() }
+                            )
+                        }
+                        AppTab.MEDITATION -> {
+                            MeditationScreen(
+                                onBackClick = { currentTab = AppTab.LOG },
+                                isDarkTheme = isDarkTheme
+                            )
+                        }
+                        AppTab.STATS -> {
+                            statsScreenView(
+                                totalIntake = totalIntake,
+                                goal = goal,
+                                logs = logs,
+                                onLogWater = { viewModel.addWaterLog(it) },
+                                onShowCustomDialog = { showCustomLogDialog = true },
+                                onDeleteLog = { viewModel.deleteWaterLog(it) },
+                                showGoalDialog = { showGoalDialog = true },
+                                onBackClick = { currentTab = AppTab.LOG },
+                                remindersEnabled = remindersEnabled,
+                                intervalHours = intervalHours,
+                                onToggleReminders = { enable ->
+                                    if (enable) {
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                            val status = ContextCompat.checkSelfPermission(
+                                                context,
+                                                Manifest.permission.POST_NOTIFICATIONS
+                                            )
+                                            if (status == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                                                viewModel.toggleReminders(true)
+                                            } else {
+                                                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                            }
                                         } else {
-                                            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                            viewModel.toggleReminders(true)
                                         }
                                     } else {
-                                        viewModel.toggleReminders(true)
+                                        viewModel.toggleReminders(false)
                                     }
-                                } else {
-                                    viewModel.toggleReminders(false)
-                                }
-                            },
-                            onIntervalChange = { viewModel.updateReminderInterval(it) },
-                            isDarkTheme = isDarkTheme,
-                            onDarkThemeToggle = onDarkThemeToggle,
-                            dateLabel = selectedDateLabel,
-                            onPreviousDay = { viewModel.selectPreviousDay() },
-                            onNextDay = { viewModel.selectNextDay() }
-                        )
+                                },
+                                onIntervalChange = { viewModel.updateReminderInterval(it) },
+                                isDarkTheme = isDarkTheme,
+                                onDarkThemeToggle = onDarkThemeToggle,
+                                dateLabel = selectedDateLabel,
+                                onPreviousDay = { viewModel.selectPreviousDay() },
+                                onNextDay = { viewModel.selectNextDay() }
+                            )
+                        }
                     }
                 }
             }
+
+            // Beautiful overlapping particle celebration overlay 🐳🎉💦
+            CelebrationOverlay(
+                totalIntake = totalIntake,
+                goal = goal
+            )
         }
     }
 

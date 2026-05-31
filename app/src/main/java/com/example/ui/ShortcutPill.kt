@@ -1,5 +1,9 @@
 package com.example.ui
 
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -20,6 +24,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,6 +46,13 @@ fun ShortcutPill(
 ) {
     val animScale = remember { Animatable(1f) }
     val coroutineScope = rememberCoroutineScope()
+    
+    // Satisfying Android high-fidelity haptic vibration squishes 📳
+    val context = LocalContext.current
+    val hapticFeedback = LocalHapticFeedback.current
+    val vibrator = remember(context) {
+        context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+    }
 
     val bg = customCardBg ?: (if (isDarkTheme) Color(0x1A1E293B) else Color.White)
     val borderCol = customCardBorder ?: (if (isDarkTheme) Color(0x15FFFFFF) else Color(0x0F000000))
@@ -52,6 +65,21 @@ fun ShortcutPill(
             .border(1.dp, borderCol, RoundedCornerShape(18.dp))
             .graphicsLayer(scaleX = animScale.value, scaleY = animScale.value)
             .clickable {
+                // Trigger tactile haptic click standard first
+                try {
+                    hapticFeedback.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                } catch (e: Exception) {}
+                
+                // Trigger secondary satisfying short squish vibe pattern 🐳💦
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        vibrator?.vibrate(VibrationEffect.createOneShot(45, VibrationEffect.DEFAULT_AMPLITUDE))
+                    } else {
+                        @Suppress("DEPRECATION")
+                        vibrator?.vibrate(45)
+                    }
+                } catch (e: Exception) {}
+
                 coroutineScope.launch {
                     animScale.animateTo(0.92f, spring(stiffness = Spring.StiffnessHigh))
                     animScale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))

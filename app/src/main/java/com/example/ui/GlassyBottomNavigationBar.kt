@@ -13,8 +13,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.LocalDrink
+import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.LocalDrink
+import androidx.compose.material.icons.outlined.SelfImprovement
 import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,7 +43,7 @@ fun GlassyBottomNavigationBar(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(bottom = 16.dp, start = 32.dp, end = 32.dp, top = 8.dp)
+            .padding(bottom = 16.dp, start = 24.dp, end = 24.dp, top = 8.dp)
             .shadow(
                 elevation = 16.dp,
                 shape = RoundedCornerShape(32.dp),
@@ -58,11 +61,11 @@ fun GlassyBottomNavigationBar(
             .padding(vertical = 10.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Tab 1: Water Logger Screen (Always visible, highlights if active)
+            // Tab 1: Water Logger Screen
             IconButton(
                 onClick = { onTabSelected(AppTab.LOG) },
                 modifier = Modifier.size(48.dp)
@@ -75,27 +78,33 @@ fun GlassyBottomNavigationBar(
                 )
             }
 
-            // Tab 2: Quick Predefined Containers Screen (Middle button!)
-            Box(
-                modifier = Modifier
-                    .size(52.dp)
-                    .background(
-                        if (currentTab == AppTab.CONTAINERS) Color(0xFF557CFC) else Color(0xFF2E3252),
-                        CircleShape
-                    )
-                    .clickable { onTabSelected(AppTab.CONTAINERS) }
-                    .padding(10.dp),
-                contentAlignment = Alignment.Center
+            // Tab 2: Quick Predefined Containers Screen
+            IconButton(
+                onClick = { onTabSelected(AppTab.CONTAINERS) },
+                modifier = Modifier.size(48.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.LocalDrink,
+                    imageVector = if (currentTab == AppTab.CONTAINERS) Icons.Filled.LocalDrink else Icons.Outlined.LocalDrink,
                     contentDescription = "Containers list 🥤",
-                    tint = Color.White,
+                    tint = if (currentTab == AppTab.CONTAINERS) Color(0xFF557CFC) else (if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)),
                     modifier = Modifier.size(24.dp)
                 )
             }
 
-            // Tab 3: Detailed Analytics / Stats Screen (Always visible, highlights if active)
+            // Tab 3: Meditation and Calming Screen
+            IconButton(
+                onClick = { onTabSelected(AppTab.MEDITATION) },
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(
+                    imageVector = if (currentTab == AppTab.MEDITATION) Icons.Filled.SelfImprovement else Icons.Outlined.SelfImprovement,
+                    contentDescription = "Meditation Screen 🧘‍♂️",
+                    tint = if (currentTab == AppTab.MEDITATION) Color(0xFF10B981) else (if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            // Tab 4: Detailed Analytics / Stats Screen
             IconButton(
                 onClick = { onTabSelected(AppTab.STATS) },
                 modifier = Modifier.size(48.dp)

@@ -125,7 +125,7 @@ fun QuickContainersScreen(
             modifier = Modifier.align(Alignment.Start).padding(start = 4.dp, bottom = 12.dp)
         )
 
-        // Visual layout of direct 2x2 container cards
+        // Visual layout of direct 2x2 container cards + bottom custom button
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -134,9 +134,23 @@ fun QuickContainersScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // Preset 1: Teaspoon of dew (50ml) 💧
+                ShortcutPill(
+                    ml = 50,
+                    label = "Teaspoon of dew 💧",
+                    icon = Icons.Filled.WaterDrop,
+                    iconBg = if (isDarkTheme) Color(0x333F83F4) else Color(0xFFF0FDF4),
+                    iconTint = Color(0xFF3F83F4),
+                    onClick = { onLogWater(50) },
+                    isDarkTheme = isDarkTheme,
+                    customCardBg = if (isDarkTheme) null else Color(0xFFF0FDF4),
+                    customCardBorder = if (isDarkTheme) null else Color(0xFFDCFCE7),
+                    modifier = Modifier.weight(1f).height(90.dp)
+                )
+                // Preset 2: Moderate glug-glug (250ml) 🥛
                 ShortcutPill(
                     ml = 250,
-                    label = "Glasserrr 🥛",
+                    label = "Moderate glug-glug 🥛",
                     icon = Icons.Filled.WaterDrop,
                     iconBg = if (isDarkTheme) Color(0x333B82F6) else Color(0xFFEFF6FF),
                     iconTint = Color(0xFF3B82F6),
@@ -146,9 +160,16 @@ fun QuickContainersScreen(
                     customCardBorder = if (isDarkTheme) null else Color(0xFFDBEAFE),
                     modifier = Modifier.weight(1f).height(90.dp)
                 )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Preset 3: Absolute hydrator (500ml) 🫙
                 ShortcutPill(
                     ml = 500,
-                    label = "Botlee 🧴",
+                    label = "Absolute hydrator 🫙",
                     icon = Icons.Filled.LocalDrink,
                     iconBg = if (isDarkTheme) Color(0x3310B981) else Color(0xFFECFDF5),
                     iconTint = Color(0xFF10B981),
@@ -158,37 +179,34 @@ fun QuickContainersScreen(
                     customCardBorder = if (isDarkTheme) null else Color(0xFFD1FAE5),
                     modifier = Modifier.weight(1f).height(90.dp)
                 )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+                // Preset 4: Submarine gulp (1000ml) 🐳
                 ShortcutPill(
-                    ml = 180,
-                    label = "Coffeee ☕",
-                    icon = Icons.Filled.Coffee,
+                    ml = 1000,
+                    label = "Submarine gulp 🐳",
+                    icon = Icons.Filled.LocalDrink,
                     iconBg = if (isDarkTheme) Color(0x33F59E0B) else Color(0xFFFFFBEB),
                     iconTint = Color(0xFFD97706),
-                    onClick = { onLogWater(180) },
+                    onClick = { onLogWater(1000) },
                     isDarkTheme = isDarkTheme,
                     customCardBg = if (isDarkTheme) null else Color(0xFFFFFBEB),
                     customCardBorder = if (isDarkTheme) null else Color(0xFFFEF3C7),
                     modifier = Modifier.weight(1f).height(90.dp)
                 )
-                ShortcutPill(
-                    ml = 250,
-                    label = "Custommm 🏺",
-                    icon = Icons.Filled.LocalDrink,
-                    iconBg = if (isDarkTheme) Color(0x33FF6B4A) else Color(0xFFFFF2EE),
-                    iconTint = Color(0xFFF97316),
-                    onClick = onShowCustomDialog,
-                    isDarkTheme = isDarkTheme,
-                    customCardBg = if (isDarkTheme) null else Color(0xFFFFF2EE),
-                    customCardBorder = if (isDarkTheme) null else Color(0xFFFFD5CC),
-                    modifier = Modifier.weight(1f).height(90.dp)
-                )
             }
+
+            // Centralized custom logging block
+            ShortcutPill(
+                ml = 0,
+                label = "Custom volume 🧪",
+                icon = Icons.Filled.LocalDrink,
+                iconBg = if (isDarkTheme) Color(0x33FF6B4A) else Color(0xFFFFF2EE),
+                iconTint = Color(0xFFF97316),
+                onClick = onShowCustomDialog,
+                isDarkTheme = isDarkTheme,
+                customCardBg = if (isDarkTheme) null else Color(0xFFFFF2EE),
+                customCardBorder = if (isDarkTheme) null else Color(0xFFFFD5CC),
+                modifier = Modifier.fillMaxWidth().height(90.dp)
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))

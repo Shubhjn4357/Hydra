@@ -1,5 +1,5 @@
 package com.example.ui
 
 enum class AppTab {
-    LOG, CONTAINERS, STATS
+    LOG, CONTAINERS, MEDITATION, STATS
 }
