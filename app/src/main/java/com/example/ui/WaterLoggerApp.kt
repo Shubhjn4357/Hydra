@@ -32,9 +32,12 @@ fun WaterLoggerApp(
     val selectedDateLabel by viewModel.selectedDateLabel.collectAsStateWithLifecycle()
     val logs by viewModel.logsForSelectedDay.collectAsStateWithLifecycle()
     val totalIntake by viewModel.totalIntakeForDay.collectAsStateWithLifecycle()
-    val goal by viewModel.hydrationGoal.collectAsStateWithLifecycle()
+    val goal by viewModel.effectiveGoal.collectAsStateWithLifecycle()
     val remindersEnabled by viewModel.remindersEnabled.collectAsStateWithLifecycle()
     val intervalHours by viewModel.reminderIntervalHours.collectAsStateWithLifecycle()
+    val hotWeatherEnabled by viewModel.isHotWeatherEnabled.collectAsStateWithLifecycle()
+    val streakCount by viewModel.streakCount.collectAsStateWithLifecycle()
+    val coachPersonality by viewModel.coachPersonality.collectAsStateWithLifecycle()
 
     var showGoalDialog by remember { mutableStateOf(false) }
     var showCustomLogDialog by remember { mutableStateOf(false) }
@@ -142,6 +145,7 @@ fun WaterLoggerApp(
                         }
                         AppTab.STATS -> {
                             statsScreenView(
+                                viewModel = viewModel,
                                 totalIntake = totalIntake,
                                 goal = goal,
                                 logs = logs,
@@ -176,7 +180,12 @@ fun WaterLoggerApp(
                                 onDarkThemeToggle = onDarkThemeToggle,
                                 dateLabel = selectedDateLabel,
                                 onPreviousDay = { viewModel.selectPreviousDay() },
-                                onNextDay = { viewModel.selectNextDay() }
+                                onNextDay = { viewModel.selectNextDay() },
+                                streakCount = streakCount,
+                                isHotWeatherEnabled = hotWeatherEnabled,
+                                onToggleHotWeather = { viewModel.toggleHotWeather(it) },
+                                coachPersonality = coachPersonality,
+                                onChangeCoachPersonality = { viewModel.changeCoachPersonality(it) }
                             )
                         }
                     }

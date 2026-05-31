@@ -37,6 +37,10 @@ import kotlinx.coroutines.delay
 import kotlin.math.PI
 import kotlin.math.sin
 
+object AmbientSynthState {
+    var isPlayingState = mutableStateOf(false)
+}
+
 class AmbientSynth {
     private var audioTrack: AudioTrack? = null
     private var isPlaying = false
@@ -45,6 +49,7 @@ class AmbientSynth {
     fun start() {
         if (isPlaying) return
         isPlaying = true
+        AmbientSynthState.isPlayingState.value = true
         
         val sampleRate = 22050
         val bufferSize = AudioTrack.getMinBufferSize(
@@ -117,6 +122,7 @@ class AmbientSynth {
 
     fun stop() {
         isPlaying = false
+        AmbientSynthState.isPlayingState.value = false
         try {
             synthThread?.join(500)
         } catch (e: Exception) {

@@ -2,9 +2,8 @@ package com.example.ui
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -12,6 +11,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import com.example.R
 import kotlin.math.PI
@@ -23,6 +23,16 @@ fun LiquidBottleWave(
     isDarkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
+    var dragStateOffset by remember { mutableStateOf(0f) }
+    val animatedSloshOffset by animateFloatAsState(
+        targetValue = dragStateOffset,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "LiquidDragSlosh"
+    )
+
     val context = LocalContext.current
     val calmBitmap = remember(context) {
         try {
@@ -131,7 +141,20 @@ fun LiquidBottleWave(
     val waterSecondaryColor = Color(0x9E60A5FA) // Translucent lighter blue back-wave
     val bottleOutlineColor = if (isDarkTheme) Color(0x5560A5FA) else Color(0x332563EB)
 
-    Canvas(modifier = modifier) {
+    Canvas(
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onDragEnd = {
+                        dragStateOffset = 0f
+                    },
+                    onHorizontalDrag = { change, dragAmount ->
+                        change.consume()
+                        dragStateOffset = (dragStateOffset + dragAmount).coerceIn(-120f, 120f)
+                    }
+                )
+            }
+    ) {
         val w = size.width
         val h = size.height
 
@@ -202,6 +225,10 @@ fun LiquidBottleWave(
                 val baselineY = targetWaterY.coerceIn(0f, h + 50f)
 
                 if (percentage > 0.01f) {
+                    val isSynthActive = AmbientSynthState.isPlayingState.value
+                    val multiplier = if (isSynthActive) 2.2f else 1.0f
+                    val harmonicPulse = if (isSynthActive) (sin(waveOffset1) * 6f) else 0f
+
                     // Secondary background wave path
                     val wavePath2 = Path().apply {
                         moveTo(0f, h)
@@ -209,7 +236,8 @@ fun LiquidBottleWave(
                         for (i in 0..points) {
                             val x = w * (i.toFloat() / points)
                             val relativeX = i.toFloat() / points
-                            val waveHeight = 16f * sin((relativeX * 2 * PI.toFloat()) + waveOffset2)
+                            val baseWave = 16f * sin((relativeX * 2 * PI.toFloat()) + waveOffset2 + (animatedSloshOffset * 0.06f))
+                            val waveHeight = (baseWave * multiplier) + (harmonicPulse * 0.5f)
                             lineTo(x, baselineY + waveHeight)
                         }
                         lineTo(w, h)
@@ -229,7 +257,8 @@ fun LiquidBottleWave(
                         for (i in 0..points) {
                             val x = w * (i.toFloat() / points)
                             val relativeX = i.toFloat() / points
-                            val waveHeight = 24f * sin((relativeX * 2 * PI.toFloat()) + waveOffset1)
+                            val baseWave = 24f * sin((relativeX * 2 * PI.toFloat()) + waveOffset1 + (animatedSloshOffset * 0.08f))
+                            val waveHeight = (baseWave * multiplier) + harmonicPulse
                             lineTo(x, baselineY + waveHeight)
                         }
                         lineTo(w, h)
@@ -246,21 +275,21 @@ fun LiquidBottleWave(
                     drawCircle(
                         color = Color.White.copy(alpha = 0.4f),
                         radius = 5f,
-                        center = Offset(w * 0.25f, baselineY + (bubbleY1 * (h - baselineY)))
+                        center = Offset(w * 0.25f + animatedSloshOffset * 0.1f, baselineY + (bubbleY1 * (h - baselineY)))
                     )
                     drawCircle(
                         color = Color.White.copy(alpha = 0.3f),
                         radius = 8f,
-                        center = Offset(w * 0.7f, baselineY + (bubbleY2 * (h - baselineY)))
+                        center = Offset(w * 0.7f + animatedSloshOffset * 0.15f, baselineY + (bubbleY2 * (h - baselineY)))
                     )
                     drawCircle(
                         color = Color.White.copy(alpha = 0.5f),
                         radius = 4f,
-                        center = Offset(w * 0.45f, baselineY + (bubbleY2 * 1.3f * (h - baselineY)).coerceIn(0f, h - baselineY))
+                        center = Offset(w * 0.45f + animatedSloshOffset * 0.05f, baselineY + (bubbleY2 * 1.3f * (h - baselineY)).coerceIn(0f, h - baselineY))
                     )
                 }
 
-                // 3. Draw standard bobbing character (The buddy!) on waves or bottle bottom using calm.png
+                // 3. Draw standard bobbing character (The buddy!) shifted slightly right which reacts slightly horizontally to sloshing
                 val buddyY = if (percentage > 0.01f) (baselineY + bobbingOffset) else (h * 0.88f + bobbingOffset)
                 if (buddyY > h * 0.12f && buddyY < h * 0.98f) {
                     if (calmBitmap != null && calmBitmap.width > 0 && calmBitmap.height > 0) {
@@ -269,8 +298,8 @@ fun LiquidBottleWave(
                         val buddyHeight = buddyWidth * aspect
 
                         if (buddyWidth > 0f && buddyHeight > 0f) {
-                            val bLeft = (w - buddyWidth) / 2
-                            val bTop = buddyY - buddyHeight * 0.85f // sitting on top of the waves or the bottle bottom
+                            val bLeft = (w * 0.52f + animatedSloshOffset * 0.2f).coerceIn(12f, w - buddyWidth - 12f)
+                            val bTop = buddyY - buddyHeight * 0.85f // sitting on top of the waves or the bottom
 
                             drawImage(
                                 image = calmBitmap,
@@ -287,7 +316,7 @@ fun LiquidBottleWave(
                         }
                         drawContext.canvas.nativeCanvas.drawText(
                             buddyEmoji,
-                            w / 2f,
+                            w * 0.72f + animatedSloshOffset * 0.2f,
                             buddyY + (w * 0.08f), // offset so he sits perfectly on top of the liquid wave
                             paint
                         )

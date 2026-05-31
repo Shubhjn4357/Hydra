@@ -2,7 +2,10 @@ package com.example.ui
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -59,6 +62,16 @@ fun HydrationLogScreen(
             stiffness = Spring.StiffnessLow
         ),
         label = "LiquidFillPercent"
+    )
+
+    // Smooth running count animation for total logged water ticker
+    val animatedTotalIntake by animateIntAsState(
+        targetValue = totalIntake,
+        animationSpec = tween(
+            durationMillis = 1000,
+            easing = FastOutSlowInEasing
+        ),
+        label = "LoggedIntakeTicker"
     )
 
     Column(
@@ -146,74 +159,83 @@ fun HydrationLogScreen(
         Box(
             modifier = Modifier
                 .weight(1f)
-                .width(280.dp)
+                .fillMaxWidth()
                 .padding(vertical = 12.dp)
                 .testTag("bottle_wave_container"),
             contentAlignment = Alignment.Center
         ) {
-            // 1. Draw solid custom glass outer shape and moving liquid / buddy
-            LiquidBottleWave(
-                percentage = animatedPercent,
-                isDarkTheme = isDarkTheme,
-                modifier = Modifier.fillMaxSize()
-            )
-
-            // 2. Telemetry and statistics texts overlayed on the upper clear pane of the bottle
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(modifier = Modifier.height(70.dp))
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(SpanStyle(fontSize = 38.sp, fontWeight = FontWeight.Black)) {
-                            append(String.format("%,d", totalIntake))
-                        }
-                        withStyle(SpanStyle(fontSize = 17.sp, fontWeight = FontWeight.Medium, color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B))) {
-                            append(" ml")
-                        }
-                    },
-                    color = if (isDarkTheme) Color.White else Color(0xFF2A2E50),
-                    fontFamily = FontFamily.SansSerif,
-                    modifier = Modifier.testTag("current_hydration_text")
-                )
-                
-                Spacer(modifier = Modifier.height(4.dp))
-                
-                Text(
-                    text = if (remaining > 0) "Remining ${remaining} ml of wetnessss 💦" else "Target Met! 🎉 Splashtastic! 🐳",
-                    fontSize = 13.sp,
-                    color = if (remaining > 0) (if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)) else Color(0xFF10B981),
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.testTag("remaining_hydration_text")
-                )
-            }
-
-            // 3. Blue "+" Action button overlayed near the bottom of the bottle liquid
             Box(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 36.dp)
-                    .size(54.dp)
-                    .shadow(
-                        elevation = 6.dp,
-                        shape = CircleShape,
-                        clip = false
-                    )
-                    .clip(CircleShape)
-                    .background(Color.White)
-                    .combinedClickable(
-                        onClick = { onLogWater(250) },
-                        onLongClick = onShowCustomDialog
-                    ),
+                    .width(240.dp)
+                    .aspectRatio(0.62f),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "Log 250ml",
-                    tint = Color(0xFF557CFC),
-                    modifier = Modifier.size(28.dp)
+                // 1. Draw solid custom glass outer shape and moving liquid / buddy
+                LiquidBottleWave(
+                    percentage = animatedPercent,
+                    isDarkTheme = isDarkTheme,
+                    modifier = Modifier.fillMaxSize()
                 )
+
+                // 2. Telemetry and statistics texts overlayed on the upper clear pane of the bottle
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.height(72.dp))
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(SpanStyle(fontSize = 38.sp, fontWeight = FontWeight.Black)) {
+                                append(String.format("%,d", animatedTotalIntake))
+                            }
+                            withStyle(SpanStyle(fontSize = 15.sp, fontWeight = FontWeight.Bold, color = if (isDarkTheme) Color(0xFF93C5FD) else Color(0xFF3B82F6))) {
+                                append(" / ")
+                                append(String.format("%,d", goal))
+                                append(" ml")
+                            }
+                        },
+                        color = if (isDarkTheme) Color.White else Color(0xFF2A2E50),
+                        fontFamily = FontFamily.SansSerif,
+                        modifier = Modifier.testTag("current_hydration_text")
+                    )
+                    
+                    Spacer(modifier = Modifier.height(6.dp))
+                    
+                    Text(
+                        text = if (remaining > 0) "Remaining ${remaining} ml 💦" else "Target Met! 🐳🎉",
+                        fontSize = 12.sp,
+                        color = if (remaining > 0) (if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF2563EB)) else Color(0xFF059669),
+                        fontWeight = FontWeight.ExtraBold,
+                        modifier = Modifier.testTag("remaining_hydration_text")
+                    )
+                }
+
+                // 3. Blue "+" Action button overlayed near the bottom of the bottle liquid
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 32.dp)
+                        .size(54.dp)
+                        .shadow(
+                            elevation = 8.dp,
+                            shape = CircleShape,
+                            clip = false
+                        )
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .combinedClickable(
+                            onClick = { onLogWater(250) },
+                            onLongClick = onShowCustomDialog
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Log 250ml",
+                        tint = Color(0xFF557CFC),
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
             }
         }
         
