@@ -400,11 +400,15 @@ fun LiquidBottleWave(
 
                 // Compute precise fluid surface baseline height
                 val rawWaterY = h - (percentage * h)
-                // Offset the liquid baseline to shift based on custom silhouettes
-                val offsetBaselineY = if (vesselSilhouette.contains("Teacup")) {
-                    rawWaterY + h * 0.15f
-                } else h - (percentage * h)
-                val baselineY = offsetBaselineY.coerceIn(-50f, h + 100f)
+                // Determine the vessel's top rim limit based on shape to prevent overflow
+                val vesselMinY = when {
+                    vesselSilhouette.contains("Teacup") || vesselSilhouette.contains("Fancy") -> h * 0.25f
+                    vesselSilhouette.contains("Mug") -> h * 0.14f
+                    vesselSilhouette.contains("Sports") -> h * 0.15f
+                    else -> h * 0.12f
+                }
+                // Offset/scale fluid surface dynamically to match custom container heights perfectly
+                val baselineY = (h - percentage * (h - vesselMinY)).coerceIn(vesselMinY, h + 10f)
 
                 // Render moving fluid waves
                 if (percentage > 0.01f) {
@@ -417,11 +421,11 @@ fun LiquidBottleWave(
                         moveTo(0f, h + 50f)
                         val points = 24
                         for (i in 0..points) {
-                            val x = w * (i.toFloat() / points)
-                            val rx = i.toFloat() / points
-                            val sloshFactor = (sin((rx * 2 * PI.toFloat()) + waveOffset2 + (animatedSloshOffset * 0.06f)))
-                            val waveHeight = (sloshFactor * 16f * multiplier) + (harmonicPulse * 0.5f)
-                            lineTo(x, baselineY + waveHeight)
+                             val x = w * (i.toFloat() / points)
+                             val rx = i.toFloat() / points
+                             val sloshFactor = (sin((rx * 2 * PI.toFloat()) + waveOffset2 + (animatedSloshOffset * 0.06f)))
+                             val waveHeight = (sloshFactor * 16f * multiplier) + (harmonicPulse * 0.5f)
+                             lineTo(x, (baselineY + waveHeight).coerceAtLeast(vesselMinY))
                         }
                         lineTo(w, h + 50f)
                         close()
@@ -450,7 +454,7 @@ fun LiquidBottleWave(
                             } else {
                                 baselineY + waveHeight
                             }
-                            lineTo(x, finalY)
+                            lineTo(x, finalY.coerceAtLeast(vesselMinY))
                         }
                         lineTo(w, h + 50f)
                         close()
@@ -542,50 +546,64 @@ fun LiquidBottleWave(
                         else -> null
                     }
                     if (stickerIcon != null) {
-                        val iconPaint = android.graphics.Paint().apply {
-                            textSize = w * 0.18f
-                            textAlign = android.graphics.Paint.Align.CENTER
+                        try {
+                            val iconPaint = android.graphics.Paint().apply {
+                                textSize = w * 0.18f
+                                textAlign = android.graphics.Paint.Align.CENTER
+                                color = if (isDarkTheme) android.graphics.Color.WHITE else android.graphics.Color.BLACK
+                            }
+                            drawContext.canvas.nativeCanvas.drawText(
+                                stickerIcon,
+                                w * 0.50f,
+                                h * 0.30f,
+                                iconPaint
+                            )
+                        } catch (e: Exception) {
+                            // Safe fallback in case of native rendering issues
                         }
-                        drawContext.canvas.nativeCanvas.drawText(
-                            stickerIcon,
-                            w * 0.35f,
-                            h * 0.30f,
-                            iconPaint
-                        )
                     }
                 }
 
                 // Render standard bobbing character (The buddy!) seated nicely on waves
-                val buddyY = if (percentage > 0.01f) (baselineY + bobbingOffset) else (h * 0.88f + bobbingOffset)
-                if (buddyY > h * 0.12f && buddyY < h * 0.98f) {
-                    if (calmBitmap != null && calmBitmap.width > 0 && calmBitmap.height > 0) {
-                        val buddyWidth = w * 0.38f
-                        val aspect = calmBitmap.height.toFloat() / calmBitmap.width.toFloat()
-                        val buddyHeight = buddyWidth * aspect
+                // Clamped so that buddy floats beautifully but stays visible even when fully filled and does not go under hood
+                val buddyY = if (percentage > 0.01f) {
+                    (baselineY + bobbingOffset).coerceIn(vesselMinY + h * 0.04f, h * 0.92f)
+                } else {
+                    (h * 0.88f + bobbingOffset)
+                }
+                
+                if (calmBitmap != null && calmBitmap.width > 0 && calmBitmap.height > 0) {
+                    val buddyWidth = w * 0.38f
+                    val aspect = calmBitmap.height.toFloat() / calmBitmap.width.toFloat()
+                    val buddyHeight = buddyWidth * aspect
 
-                        if (buddyWidth > 0f && buddyHeight > 0f) {
-                            val bLeft = (w * 0.52f + animatedSloshOffset * 0.2f).coerceIn(12f, w - buddyWidth - 12f)
-                            val bTop = buddyY - buddyHeight * 0.85f // sitting on top of current waves
+                    if (buddyWidth > 0f && buddyHeight > 0f) {
+                        val bLeft = ((w - buddyWidth) / 2f + animatedSloshOffset * 0.2f).coerceIn(12f, w - buddyWidth - 12f)
+                        val bTop = buddyY - buddyHeight * 0.85f // sitting on top of current waves
 
-                            drawImage(
-                                image = calmBitmap,
-                                dstOffset = androidx.compose.ui.unit.IntOffset(bLeft.toInt(), bTop.toInt()),
-                                dstSize = androidx.compose.ui.unit.IntSize(buddyWidth.toInt(), buddyHeight.toInt())
-                            )
-                        }
-                    } else {
-                        // Fallback surfer emoji in case of bitmap loading issues
+                        drawImage(
+                            image = calmBitmap,
+                            dstOffset = androidx.compose.ui.unit.IntOffset(bLeft.toInt(), bTop.toInt()),
+                            dstSize = androidx.compose.ui.unit.IntSize(buddyWidth.toInt(), buddyHeight.toInt())
+                        )
+                    }
+                } else {
+                    // Fallback surfer emoji in case of bitmap loading issues
+                    try {
                         val buddyEmoji = "🏄‍♂️"
                         val paint = android.graphics.Paint().apply {
                             textSize = w * 0.26f
                             textAlign = android.graphics.Paint.Align.CENTER
+                            color = if (isDarkTheme) android.graphics.Color.WHITE else android.graphics.Color.BLACK
                         }
                         drawContext.canvas.nativeCanvas.drawText(
                             buddyEmoji,
-                            w * 0.70f + animatedSloshOffset * 0.2f,
+                            w * 0.50f + animatedSloshOffset * 0.2f, // horizontally centered
                             buddyY + (w * 0.08f),
                             paint
                         )
+                    } catch (e: Exception) {
+                        // Safe fallback in case of native rendering issues
                     }
                 }
 
@@ -605,8 +623,38 @@ fun LiquidBottleWave(
                 }
             }
 
-            // Draw high-fidelity bottle top neck caps
-            if (!vesselSilhouette.contains("Teacup") && !vesselSilhouette.contains("Fancy")) {
+            // Draw high-fidelity accents depending on silhouette
+            if (vesselSilhouette.contains("Mug")) {
+                // Symmetrical open top rim lip for the Mug
+                drawOval(
+                    color = bottleOutlineColor,
+                    topLeft = Offset(w * 0.10f, h * 0.12f),
+                    size = Size(w * 0.80f, h * 0.04f),
+                    style = Stroke(width = 10f)
+                )
+            } else if (vesselSilhouette.contains("Teacup") || vesselSilhouette.contains("Fancy")) {
+                // Symmetrical open top rim lip for the Teacup
+                drawOval(
+                    color = bottleOutlineColor,
+                    topLeft = Offset((w - w * 0.95f) / 2, h * 0.23f),
+                    size = Size(w * 0.95f, h * 0.04f),
+                    style = Stroke(width = 8f)
+                )
+                // Draw a beautiful elegant saucer plate at the very bottom base of the teacup
+                val saucerPath = Path().apply {
+                    moveTo(w * 0.15f, h * 0.97f)
+                    lineTo(w * 0.85f, h * 0.97f)
+                    quadraticTo(w * 0.92f, h * 0.97f, w * 0.89f, h * 1.01f)
+                    lineTo(w * 0.11f, h * 1.01f)
+                    quadraticTo(w * 0.08f, h * 0.97f, w * 0.15f, h * 0.97f)
+                }
+                drawPath(
+                    path = saucerPath,
+                    color = bottleOutlineColor,
+                    style = Stroke(width = 8f, cap = StrokeCap.Round)
+                )
+            } else {
+                // Draw high-fidelity bottle top neck caps for standard bottle silhouettes
                 val neckWidth = w * 0.45f
                 val capHeight = h * 0.05f
                 

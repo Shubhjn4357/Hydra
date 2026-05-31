@@ -2,6 +2,7 @@ package com.example.ui
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -541,7 +542,11 @@ fun TactileSoundSandboxCard(
             )
 
             Spacer(modifier = Modifier.height(6.dp))
-            Text("Binaural Chord customizer: ${bFreq.toInt()} Hz (Alpha/Theta Meditation)", fontSize = 11.sp)
+            Text(
+                text = "Binaural Chord customizer: ${bFreq.toInt()} Hz (Alpha/Theta Meditation)",
+                fontSize = 11.sp,
+                color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+            )
             Slider(
                 value = bFreq,
                 onValueChange = { viewModel.updateBinauralFrequency(it) },
@@ -549,7 +554,11 @@ fun TactileSoundSandboxCard(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Text("Simulated Gulping rate speed: ${tempo.format(1)}x", fontSize = 11.sp)
+            Text(
+                text = "Simulated Gulping rate speed: ${tempo.format(1)}x",
+                fontSize = 11.sp,
+                color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+            )
             Slider(
                 value = tempo,
                 onValueChange = { viewModel.updateGulpTempo(it) },
@@ -585,7 +594,12 @@ fun TactileSoundSandboxCard(
             Spacer(modifier = Modifier.height(6.dp))
 
             // ASMR ice snapping buttons
-            Text("ASMR Snaker Sandbox clicks:", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = "ASMR Snaker Sandbox clicks:",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(5.dp), modifier = Modifier.fillMaxWidth()) {
                 listOf("Crush Cube 🧊", "Tink Glass 🥃", "Shave Ice 🍧").forEach { txt ->
                     Box(
@@ -604,7 +618,12 @@ fun TactileSoundSandboxCard(
                             .padding(vertical = 4.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(txt, fontSize = 9.sp, fontWeight = FontWeight.Medium)
+                        Text(
+                            text = txt,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = if (isDarkTheme) Color(0xFFCBD5E1) else Color(0xFF334155)
+                        )
                     }
                 }
             }
@@ -654,7 +673,12 @@ fun AestheticVisualCustomizerCard(
             )
 
             Spacer(modifier = Modifier.height(12.dp))
-            Text("Select Bottle Liquid Theme:", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = "Select Bottle Liquid Theme:",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+            )
 
             // Horizontal scrolling themes representation
             val themes = listOf(
@@ -678,7 +702,13 @@ fun AestheticVisualCustomizerCard(
                                     .padding(vertical = 5.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(th, fontSize = 9.sp, color = if (isSel) Color.White else (if (isDarkTheme) Color(0xFFCBD5E1) else Color.Black), fontWeight = FontWeight.Bold, maxLines = 1)
+                                Text(
+                                    text = th,
+                                    fontSize = 9.sp,
+                                    color = if (isSel) Color.White else (if (isDarkTheme) Color(0xFFCBD5E1) else Color.Black),
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1
+                                )
                             }
                         }
                     }
@@ -686,7 +716,12 @@ fun AestheticVisualCustomizerCard(
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            Text("Custom Vessel Silhouette:", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = "Custom Vessel Silhouette:",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+            )
             val silhouettes = listOf("Glass Jar 🫙", "Sports Thermos 🧴", "Fancy Teacup ☕", "Classic Mug 🍺")
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
                 silhouettes.forEach { sil ->
@@ -702,13 +737,23 @@ fun AestheticVisualCustomizerCard(
                             .padding(vertical = 6.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(sil, fontSize = 9.sp, color = if (isSel) Color.White else (if (isDarkTheme) Color(0xFFCBD5E1) else Color.Black), fontWeight = FontWeight.Bold, maxLines = 1)
+                        Text(
+                            text = sil,
+                            fontSize = 9.sp,
+                            color = if (isSel) Color.White else (if (isDarkTheme) Color(0xFFCBD5E1) else Color.Black),
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1
+                        )
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-            Text("Glass Frosting level: ${(frostingVal * 100).toInt()}% ${if (frostingVal < 0.4f) "Matte" else "Glossy Clear"}", fontSize = 11.sp)
+            Text(
+                text = "Glass Frosting level: ${(frostingVal * 100).toInt()}% ${if (frostingVal < 0.4f) "Matte" else "Glossy Clear"}",
+                fontSize = 11.sp,
+                color = if (isDarkTheme) Color(0xFFE2E8F0) else Color(0xFF334155)
+            )
             Slider(
                 value = frostingVal,
                 onValueChange = { viewModel.updateGlassFrosting(it) },
@@ -723,23 +768,40 @@ fun AestheticVisualCustomizerCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = isLavaLampEnabled, onCheckedChange = { viewModel.toggleLavaLamp(it) })
-                        Text("Lava Lamp Viscosity 🧪", fontSize = 10.sp)
+                        Text(
+                            text = "Lava Lamp Viscosity 🧪",
+                            fontSize = 10.sp,
+                            color = if (isDarkTheme) Color(0xFFCBD5E1) else Color(0xFF475569)
+                        )
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = isRaindropsEnabled, onCheckedChange = { viewModel.toggleRaindrops(it) })
-                        Text("Zen Raindrops Particles ☔", fontSize = 10.sp)
+                        Text(
+                            text = "Zen Raindrops Particles ☔",
+                            fontSize = 10.sp,
+                            color = if (isDarkTheme) Color(0xFFCBD5E1) else Color(0xFF475569)
+                        )
                     }
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = isCoralForestEnabled, onCheckedChange = { viewModel.toggleCoralForest(it) })
-                        Text("Sub-aquatic Coral 🐠", fontSize = 10.sp)
+                        Text(
+                            text = "Sub-aquatic Coral 🐠",
+                            fontSize = 10.sp,
+                            color = if (isDarkTheme) Color(0xFFCBD5E1) else Color(0xFF475569)
+                        )
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Choose a Holographic Neon Sticker for your bottle:", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = "Choose a Holographic Neon Sticker for your bottle:",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+            )
             val stickers = listOf("Otter 🦦", "Planet 🪐", "Dino 🦖", "Crown 👑", "Heart 💖", "None 🚫")
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
                 stickers.forEach { st ->
@@ -807,7 +869,12 @@ fun GamifiedRpgQuestCard(
 
             Spacer(modifier = Modifier.height(12.dp))
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text("👾 Avatar: Hydry Bot Lv. $rpgLevel", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(
+                    text = "👾 Avatar: Hydry Bot Lv. $rpgLevel",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    color = if (isDarkTheme) Color.White else Color(0xFF0F172A)
+                )
                 Spacer(modifier = Modifier.width(10.dp))
                 LinearProgressIndicator(
                     progress = { rpgXp.toFloat() / (rpgLevel * 100) },
@@ -816,14 +883,34 @@ fun GamifiedRpgQuestCard(
                     trackColor = if (isDarkTheme) Color(0x22FFFFFF) else Color(0x11000000)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("XP $rpgXp/${rpgLevel * 100}", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    text = "XP $rpgXp/${rpgLevel * 100}",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isDarkTheme) Color(0xFFE2E8F0) else Color(0xFF334155)
+                )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                Text("💪 STR Strength: $strength", fontSize = 10.sp, fontWeight = FontWeight.Medium)
-                Text("🧠 INT Intellect: $intellect", fontSize = 10.sp, fontWeight = FontWeight.Medium)
-                Text("⚡ AGI Agility: $agility", fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                Text(
+                    text = "💪 STR Strength: $strength",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = if (isDarkTheme) Color(0xFFCBD5E1) else Color(0xFF334155)
+                )
+                Text(
+                    text = "🧠 INT Intellect: $intellect",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = if (isDarkTheme) Color(0xFFCBD5E1) else Color(0xFF334155)
+                )
+                Text(
+                    text = "⚡ AGI Agility: $agility",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = if (isDarkTheme) Color(0xFFCBD5E1) else Color(0xFF334155)
+                )
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -860,11 +947,23 @@ fun GamifiedRpgQuestCard(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFFFFFBEB), RoundedCornerShape(8.dp))
-                        .border(1.dp, Color(0xFFFCD34D), RoundedCornerShape(8.dp))
+                        .background(
+                            color = if (isDarkTheme) Color(0xFF2E1A47) else Color(0xFFFFFBEB),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = if (isDarkTheme) Color(0xFFB55FC2) else Color(0xFFFCD34D),
+                            shape = RoundedCornerShape(8.dp)
+                        )
                         .padding(8.dp)
                 ) {
-                    Text(mysteryBubbleText!!, fontSize = 11.sp, color = Color(0xFF92400E), fontWeight = FontWeight.Bold)
+                    Text(
+                        text = mysteryBubbleText!!,
+                        fontSize = 11.sp,
+                        color = if (isDarkTheme) Color(0xFFF472B6) else Color(0xFF92400E),
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
@@ -873,9 +972,14 @@ fun GamifiedRpgQuestCard(
             Spacer(modifier = Modifier.height(10.dp))
 
             // Bingo and Jackpot Slot
-            Text("🎰 Hydration Jackpot Slot Machine:", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = "🎰 Hydration Jackpot Slot Machine:",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+            )
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(jackpotResult, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF3B82F6))
+                Text(jackpotResult, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = if (isDarkTheme) Color(0xFF60A5FA) else Color(0xFF2563EB))
                 Button(
                     onClick = {
                         val slotIcons = listOf("🐳", "💦", "💧", "🦦", "🍇", "🧉")
@@ -891,12 +995,17 @@ fun GamifiedRpgQuestCard(
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
                 ) {
-                    Text("Spin 🎰", fontSize = 10.sp)
+                    Text("Spin 🎰", fontSize = 10.sp, color = Color.White)
                 }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            Text("👗 Dress Coach Outfit (Wardrobe):", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = "👗 Dress Coach Outfit (Wardrobe):",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+            )
             val accessories = listOf("None 🧢", "Sunglasses 😎", "Winter Scarf 🧣", "Royal Crown 👑")
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
                 accessories.forEach { acc ->
@@ -919,14 +1028,23 @@ fun GamifiedRpgQuestCard(
 
             Spacer(modifier = Modifier.height(10.dp))
             // Boss crisis
-            Text("⚔️ Group Boss Hydration: Quench the Dry Sand Giant!", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = "⚔️ Group Boss Hydration: Quench the Dry Sand Giant!",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+            )
             LinearProgressIndicator(
                 progress = { 0.74f },
                 modifier = Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(5.dp)),
                 color = Color(0xFF3B82F6),
                 trackColor = if (isDarkTheme) Color(0x33FFFFFF) else Color(0x22000000)
             )
-            Text("Boss Health: 74% quenched by Hydry global clans!", fontSize = 10.sp)
+            Text(
+                text = "Boss Health: 74% quenched by Hydry global clans!",
+                fontSize = 10.sp,
+                color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)
+            )
         }
     }
 }
@@ -979,35 +1097,55 @@ fun SmartBiologicalAdjustersCard(
                 // Coffee Tax
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                        Text("☕ Caffeine Moisture Tax (+250ml)", fontSize = 11.sp)
+                        Text(
+                            text = "☕ Caffeine Moisture Tax (+250ml)",
+                            fontSize = 11.sp,
+                            color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+                        )
                     }
                     Switch(checked = isCoffeeTax, onCheckedChange = { viewModel.toggleCoffeeTax(it) })
                 }
                 // Altitude booster
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                        Text("🏔️ Altitude Target Booster (+300ml)", fontSize = 11.sp)
+                        Text(
+                            text = "🏔️ Altitude Target Booster (+300ml)",
+                            fontSize = 11.sp,
+                            color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+                        )
                     }
                     Switch(checked = isAltBooster, onCheckedChange = { viewModel.toggleAltitudeBooster(it) })
                 }
                 // Sodium salt
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                        Text("🍟 Sodium Salt pizza Tax (+300ml)", fontSize = 11.sp)
+                        Text(
+                            text = "🍟 Sodium Salt pizza Tax (+300ml)",
+                            fontSize = 11.sp,
+                            color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+                        )
                     }
                     Switch(checked = isSaltTax, onCheckedChange = { viewModel.toggleSodiumSaltTax(it) })
                 }
                 // Pregnancy
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                        Text("🤱 Pregnancy Nursing Mode (+600ml)", fontSize = 11.sp)
+                        Text(
+                            text = "🤱 Pregnancy Nursing Mode (+600ml)",
+                            fontSize = 11.sp,
+                            color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+                        )
                     }
                     Switch(checked = isPregnancy, onCheckedChange = { viewModel.togglePregnancyMode(it) })
                 }
                 // Illness
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                        Text("🤒 Illness Recover Quick-Boost (+400ml)", fontSize = 11.sp)
+                        Text(
+                            text = "🤒 Illness Recover Quick-Boost (+400ml)",
+                            fontSize = 11.sp,
+                            color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+                        )
                     }
                     Switch(checked = isIllness, onCheckedChange = { viewModel.toggleIllnessRecovery(it) })
                 }
@@ -1017,7 +1155,12 @@ fun SmartBiologicalAdjustersCard(
             HorizontalDivider(color = if (isDarkTheme) Color(0x11FFFFFF) else Color(0x0A000000))
             Spacer(modifier = Modifier.height(10.dp))
 
-            Text("Multi-climate geographical traveler presets:", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = "Multi-climate geographical traveler presets:",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
                 listOf("🏜️ Desert (+500ml)", "🌴 Tropics (+0ml)", "❄️ Arctic (+200ml)").forEach { p ->
                     Box(
@@ -1037,7 +1180,12 @@ fun SmartBiologicalAdjustersCard(
                             .padding(vertical = 4.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(p, fontSize = 9.sp, fontWeight = FontWeight.Medium)
+                        Text(
+                            text = p,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = if (isDarkTheme) Color(0xFFCBD5E1) else Color(0xFF1E293B)
+                        )
                     }
                 }
             }
@@ -1701,7 +1849,12 @@ fun statsScreenView(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Enable Sunny Index (+500ml)", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text(
+                                    text = "Enable Sunny Index (+500ml)",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+                                )
                                 Switch(
                                     checked = isHotWeatherEnabled,
                                     onCheckedChange = {
@@ -1978,40 +2131,51 @@ fun ElevatedHydrationProgressRing(
 
             Box(
                 modifier = Modifier
-                    .size(200.dp)
-                    .drawBehind {
-                        // Background track circle (full circle/almost full circle, like the screenshot)
-                        drawArc(
-                            color = if (isDarkTheme) Color(0xFF1E293B) else Color(0xFFE2E8F0),
-                            startAngle = -220f,
-                            sweepAngle = 260f,
-                            useCenter = false,
-                            topLeft = Offset(10f, 10f),
-                            size = Size(size.width - 20f, size.height - 20f),
-                            style = Stroke(width = 16f, cap = StrokeCap.Round)
-                        )
-                        // Active colored progress arc
-                        val sweep = 260f * (percentText / 100f).coerceIn(0f, 1f)
-                        drawArc(
-                            brush = Brush.linearGradient(
-                                colors = listOf(Color(0xFF818CF8), Color(0xFF3B82F6))
-                            ),
-                            startAngle = -220f,
-                            sweepAngle = sweep,
-                            useCenter = false,
-                            topLeft = Offset(10f, 10f),
-                            size = Size(size.width - 20f, size.height - 20f),
-                            style = Stroke(width = 16f, cap = StrokeCap.Round)
-                        )
-                    },
+                    .size(220.dp)
+                    .padding(8.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                // Symmetrical, robustly aligned and non-clipping progress circle
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val strokeWidth = 14.dp.toPx()
+                    val diameterOffset = strokeWidth / 2f
+                    val arcSize = Size(size.width - strokeWidth, size.height - strokeWidth)
+
+                    // Track background circle
+                    drawCircle(
+                        color = if (isDarkTheme) Color(0xFF1E293B) else Color(0xFFF1F5F9),
+                        radius = (size.width - strokeWidth) / 2f,
+                        center = center,
+                        style = Stroke(width = strokeWidth)
+                    )
+
+                    // Active colored progress arc
+                    val sweep = 360f * (percentText / 100f).coerceIn(0f, 1f)
+                    if (sweep > 0f) {
+                        drawArc(
+                            brush = Brush.sweepGradient(
+                                colors = listOf(Color(0xFF818CF8), Color(0xFF3B82F6), Color(0xFF818CF8))
+                            ),
+                            startAngle = -90f,
+                            sweepAngle = sweep,
+                            useCenter = false,
+                            topLeft = Offset(diameterOffset, diameterOffset),
+                            size = arcSize,
+                            style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                        )
+                    }
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                ) {
                     Text(
                         text = "$percentText%",
-                        fontSize = 48.sp,
+                        fontSize = 44.sp,
                         fontWeight = FontWeight.Black,
-                        color = if (isDarkTheme) Color(0xFFC7D2FE) else Color(0xFF2E3252)
+                        color = if (isDarkTheme) Color(0xFF818CF8) else Color(0xFF3B82F6),
+                        letterSpacing = (-1.5).sp
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
@@ -2022,10 +2186,11 @@ fun ElevatedHydrationProgressRing(
                     )
                     val remaining = (goal - totalIntake).coerceAtLeast(0)
                     Text(
-                        text = if (remaining > 0) "-%,d ml of wetness left 💦".format(remaining) else "Target Met! 🎉 Splashtastic! 🐳",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = if (remaining > 0) Color(0xFF94A3B8) else Color(0xFF10B981)
+                        text = if (remaining > 0) "${remaining} ml left 💦" else "Target Met! 🎉 🐳",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (remaining > 0) (if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)) else Color(0xFF10B981),
+                        textAlign = TextAlign.Center
                     )
                 }
             }

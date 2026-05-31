@@ -172,14 +172,14 @@ fun HydrationLogScreen(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .padding(vertical = 12.dp)
+                .padding(vertical = 4.dp)
                 .testTag("bottle_wave_container"),
             contentAlignment = Alignment.Center
         ) {
             Box(
                 modifier = Modifier
-                    .width(240.dp)
-                    .aspectRatio(0.62f),
+                    .width(310.dp)
+                    .aspectRatio(0.65f),
                 contentAlignment = Alignment.Center
             ) {
                 // 1. Draw solid custom glass outer shape and moving liquid / buddy
@@ -201,7 +201,7 @@ fun HydrationLogScreen(
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Spacer(modifier = Modifier.height(72.dp))
+                    Spacer(modifier = Modifier.height(92.dp))
                     Text(
                         text = buildAnnotatedString {
                             withStyle(SpanStyle(fontSize = 38.sp, fontWeight = FontWeight.Black)) {
@@ -233,7 +233,7 @@ fun HydrationLogScreen(
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 32.dp)
+                        .padding(bottom = 44.dp)
                         .size(54.dp)
                         .shadow(
                             elevation = 8.dp,

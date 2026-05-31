@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
@@ -57,12 +58,11 @@ fun ShortcutPill(
     val bg = customCardBg ?: (if (isDarkTheme) Color(0x1A1E293B) else Color.White)
     val borderCol = customCardBorder ?: (if (isDarkTheme) Color(0x15FFFFFF) else Color(0x0F000000))
 
-    Row(
+    Column(
         modifier = modifier
-            .height(68.dp)
-            .shadow(2.dp, RoundedCornerShape(18.dp))
-            .background(bg, RoundedCornerShape(18.dp))
-            .border(1.dp, borderCol, RoundedCornerShape(18.dp))
+            .shadow(4.dp, RoundedCornerShape(24.dp))
+            .background(bg, RoundedCornerShape(24.dp))
+            .border(2.dp, borderCol, RoundedCornerShape(24.dp))
             .graphicsLayer(scaleX = animScale.value, scaleY = animScale.value)
             .clickable {
                 // Trigger tactile haptic click standard first
@@ -86,13 +86,13 @@ fun ShortcutPill(
                 }
                 onClick()
             }
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
+            .padding(12.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier
-                .size(40.dp)
+                .size(54.dp)
                 .background(iconBg, CircleShape),
             contentAlignment = Alignment.Center
         ) {
@@ -100,23 +100,25 @@ fun ShortcutPill(
                 imageVector = icon,
                 contentDescription = label,
                 tint = iconTint,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(28.dp)
             )
         }
-        Spacer(modifier = Modifier.width(10.dp))
-        Column {
-            Text(
-                text = if (ml > 0) "$ml ml" else "Custom",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
-            )
-            Text(
-                text = label,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)
-            )
-        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = if (ml > 0) "$ml ml" else "Custom",
+            fontSize = 17.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = if (isDarkTheme) Color.White else Color(0xFF1E293B),
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B),
+            textAlign = TextAlign.Center,
+            lineHeight = 14.sp
+        )
     }
 }

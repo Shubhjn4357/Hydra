@@ -145,7 +145,7 @@ fun QuickContainersScreen(
                     isDarkTheme = isDarkTheme,
                     customCardBg = if (isDarkTheme) null else Color(0xFFF0FDF4),
                     customCardBorder = if (isDarkTheme) null else Color(0xFFDCFCE7),
-                    modifier = Modifier.weight(1f).height(90.dp)
+                    modifier = Modifier.weight(1f).height(145.dp)
                 )
                 // Preset 2: Moderate glug-glug (250ml) 🥛
                 ShortcutPill(
@@ -158,7 +158,7 @@ fun QuickContainersScreen(
                     isDarkTheme = isDarkTheme,
                     customCardBg = if (isDarkTheme) null else Color(0xFFEFF6FF),
                     customCardBorder = if (isDarkTheme) null else Color(0xFFDBEAFE),
-                    modifier = Modifier.weight(1f).height(90.dp)
+                    modifier = Modifier.weight(1f).height(145.dp)
                 )
             }
 
@@ -177,7 +177,7 @@ fun QuickContainersScreen(
                     isDarkTheme = isDarkTheme,
                     customCardBg = if (isDarkTheme) null else Color(0xFFECFDF5),
                     customCardBorder = if (isDarkTheme) null else Color(0xFFD1FAE5),
-                    modifier = Modifier.weight(1f).height(90.dp)
+                    modifier = Modifier.weight(1f).height(145.dp)
                 )
                 // Preset 4: Submarine gulp (1000ml) 🐳
                 ShortcutPill(
@@ -190,7 +190,7 @@ fun QuickContainersScreen(
                     isDarkTheme = isDarkTheme,
                     customCardBg = if (isDarkTheme) null else Color(0xFFFFFBEB),
                     customCardBorder = if (isDarkTheme) null else Color(0xFFFEF3C7),
-                    modifier = Modifier.weight(1f).height(90.dp)
+                    modifier = Modifier.weight(1f).height(145.dp)
                 )
             }
 
@@ -205,7 +205,7 @@ fun QuickContainersScreen(
                 isDarkTheme = isDarkTheme,
                 customCardBg = if (isDarkTheme) null else Color(0xFFFFF2EE),
                 customCardBorder = if (isDarkTheme) null else Color(0xFFFFD5CC),
-                modifier = Modifier.fillMaxWidth().height(90.dp)
+                modifier = Modifier.fillMaxWidth().height(105.dp)
             )
         }
 
