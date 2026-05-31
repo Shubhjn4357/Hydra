@@ -1,0 +1,8 @@
+{
+  "name": "Hydra",
+  "description": "A beautiful, responsive Water Intake Logger featuring local Room database, smart reminders, fluid wave animations, dual-theme support, and frosted-glass components.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

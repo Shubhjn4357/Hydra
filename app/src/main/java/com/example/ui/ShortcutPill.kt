@@ -1,0 +1,94 @@
+package com.example.ui
+
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
+
+@Composable
+fun ShortcutPill(
+    ml: Int,
+    label: String,
+    icon: ImageVector,
+    iconBg: Color,
+    iconTint: Color,
+    onClick: () -> Unit,
+    isDarkTheme: Boolean,
+    modifier: Modifier = Modifier,
+    customCardBg: Color? = null,
+    customCardBorder: Color? = null
+) {
+    val animScale = remember { Animatable(1f) }
+    val coroutineScope = rememberCoroutineScope()
+
+    val bg = customCardBg ?: (if (isDarkTheme) Color(0x1A1E293B) else Color.White)
+    val borderCol = customCardBorder ?: (if (isDarkTheme) Color(0x15FFFFFF) else Color(0x0F000000))
+
+    Row(
+        modifier = modifier
+            .height(68.dp)
+            .shadow(2.dp, RoundedCornerShape(18.dp))
+            .background(bg, RoundedCornerShape(18.dp))
+            .border(1.dp, borderCol, RoundedCornerShape(18.dp))
+            .graphicsLayer(scaleX = animScale.value, scaleY = animScale.value)
+            .clickable {
+                coroutineScope.launch {
+                    animScale.animateTo(0.92f, spring(stiffness = Spring.StiffnessHigh))
+                    animScale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+                }
+                onClick()
+            }
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .background(iconBg, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = iconTint,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column {
+            Text(
+                text = if (ml > 0) "$ml ml" else "Custom",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+            )
+            Text(
+                text = label,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)
+            )
+        }
+    }
+}
