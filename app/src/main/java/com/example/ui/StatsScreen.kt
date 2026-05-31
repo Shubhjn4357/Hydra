@@ -5,6 +5,8 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -28,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -620,7 +624,7 @@ fun AestheticVisualCustomizerCard(
     val isRaindropsEnabled by viewModel.isRaindropsEnabled.collectAsStateWithLifecycle()
     val isCoralForestEnabled by viewModel.isCoralForestEnabled.collectAsStateWithLifecycle()
 
-    var activeSticker by remember { mutableStateOf<String?>(null) }
+    val activeSticker by viewModel.activeSticker.collectAsStateWithLifecycle()
 
     Card(
         modifier = Modifier
@@ -747,7 +751,7 @@ fun AestheticVisualCustomizerCard(
                                 color = if (isSel) Color(0xFFEC4899) else (if (isDarkTheme) Color(0x331E293B) else Color(0xFFE2E8F0)),
                                 shape = RoundedCornerShape(6.dp)
                             )
-                            .clickable { activeSticker = if (st == "None 🚫") null else st }
+                            .clickable { viewModel.updateActiveSticker(st) }
                             .padding(vertical = 4.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -1252,6 +1256,15 @@ fun SmartTechIntegrationsCard(
     }
 }
 
+enum class SettingsTab(val title: String, val icon: String) {
+    ANALYTICS("Analytics", "📈"),
+    THEMES("Themes", "🎨"),
+    PHYSIOLOGY("Bio-Adjust", "⚙️"),
+    QUESTS("RPG Quest", "🎮"),
+    SOUNDS("Acoustic", "🔊"),
+    SYSTEM("Sync & System", "📲")
+}
+
 @Composable
 fun statsScreenView(
     viewModel: WaterViewModel,
@@ -1281,6 +1294,9 @@ fun statsScreenView(
     val percentage = if (goal > 0) (totalIntake.toFloat() / goal).coerceIn(0f, 1.5f) else 0f
     val percentText = (percentage * 100).toInt()
 
+    val haptic = LocalHapticFeedback.current
+    var activeSettingsTab by remember { mutableStateOf(SettingsTab.ANALYTICS) }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -1297,7 +1313,10 @@ fun statsScreenView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = onBackClick,
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onBackClick()
+                    },
                     modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
@@ -1314,7 +1333,10 @@ fun statsScreenView(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     IconButton(
-                        onClick = onPreviousDay,
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onPreviousDay()
+                        },
                         modifier = Modifier.size(32.dp)
                     ) {
                         Icon(
@@ -1338,7 +1360,10 @@ fun statsScreenView(
                     Spacer(modifier = Modifier.width(4.dp))
 
                     IconButton(
-                        onClick = onNextDay,
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onNextDay()
+                        },
                         modifier = Modifier.size(32.dp)
                     ) {
                         Icon(
@@ -1350,7 +1375,10 @@ fun statsScreenView(
                 }
 
                 IconButton(
-                    onClick = showGoalDialog,
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        showGoalDialog()
+                    },
                     modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
@@ -1363,457 +1391,549 @@ fun statsScreenView(
             }
         }
 
-        // Circular Glass progress component
+        // Sub-Tabs row for each feature (Requested!)
         item {
-            ElevatedHydrationProgressRing(
-                percentText = percentText,
-                totalIntake = totalIntake,
-                goal = goal,
-                isDarkTheme = isDarkTheme
-            )
-        }
-
-        // Beautiful Streak Flame Glow Component
-        item {
-            HydrationStreakFlameGlowCard(
-                streakCount = streakCount,
-                isDarkTheme = isDarkTheme
-            )
-        }
-
-        // Beautiful Coach Component
-        item {
-            HydryAICoachCard(
-                percentage = percentage,
-                coachPersonality = coachPersonality,
-                onChangeCoachPersonality = onChangeCoachPersonality,
-                isDarkTheme = isDarkTheme
-            )
-        }
-
-        // Expanded Aesthetic Customizer (Features 1-15)
-        item {
-            AestheticVisualCustomizerCard(
-                viewModel = viewModel,
-                isDarkTheme = isDarkTheme
-            )
-        }
-
-        // Gamified RPG Quest system (Features 16-30)
-        item {
-            GamifiedRpgQuestCard(
-                viewModel = viewModel,
-                isDarkTheme = isDarkTheme
-            )
-        }
-
-        // Biological Adjusters (Features 31-45)
-        item {
-            SmartBiologicalAdjustersCard(
-                viewModel = viewModel,
-                isDarkTheme = isDarkTheme,
-                goal = goal
-            )
-        }
-
-        // Sound sandbox Component (Features 46-60)
-        item {
-            TactileSoundSandboxCard(
-                viewModel = viewModel,
-                isDarkTheme = isDarkTheme
-            )
-        }
-
-        // Analytical Telemetry (Features 76-90)
-        item {
-            AnalyticalTelemetryCard(
-                isDarkTheme = isDarkTheme,
-                totalIntake = totalIntake
-            )
-        }
-
-        // Smart tech integrations (Features 91-108)
-        item {
-            SmartTechIntegrationsCard(
-                viewModel = viewModel,
-                isDarkTheme = isDarkTheme
-            )
-        }
-
-        // Gorgeous interactive 2x2 shortcut pill grid matching phone 2 in the screenshot
-        item {
-            Column(
+            androidx.compose.foundation.layout.Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 4.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    text = "Tap a container to log water! 💧🥤",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B),
-                    modifier = Modifier.align(Alignment.Start).padding(start = 4.dp, bottom = 4.dp)
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    ShortcutPill(
-                        ml = 250,
-                        label = "Water Drop",
-                        icon = Icons.Filled.WaterDrop,
-                        iconBg = if (isDarkTheme) Color(0x333B82F6) else Color(0xFFEFF6FF),
-                        iconTint = Color(0xFF3B82F6),
-                        onClick = { onLogWater(250) },
-                        isDarkTheme = isDarkTheme,
-                        customCardBg = if (isDarkTheme) null else Color(0xFFEFF6FF),
-                        customCardBorder = if (isDarkTheme) null else Color(0xFFDBEAFE),
-                        modifier = Modifier.weight(1f)
-                    )
-                    ShortcutPill(
-                        ml = 500,
-                        label = "Water Bottle",
-                        icon = Icons.Filled.LocalDrink,
-                        iconBg = if (isDarkTheme) Color(0x3310B981) else Color(0xFFECFDF5),
-                        iconTint = Color(0xFF10B981),
-                        onClick = { onLogWater(500) },
-                        isDarkTheme = isDarkTheme,
-                        customCardBg = if (isDarkTheme) null else Color(0xFFECFDF5),
-                        customCardBorder = if (isDarkTheme) null else Color(0xFFD1FAE5),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    ShortcutPill(
-                        ml = 180,
-                        label = "Coffee Cup",
-                        icon = Icons.Filled.Coffee,
-                        iconBg = if (isDarkTheme) Color(0x33F59E0B) else Color(0xFFFFFBEB),
-                        iconTint = Color(0xFFD97706),
-                        onClick = { onLogWater(180) },
-                        isDarkTheme = isDarkTheme,
-                        customCardBg = if (isDarkTheme) null else Color(0xFFFFFBEB),
-                        customCardBorder = if (isDarkTheme) null else Color(0xFFFEF3C7),
-                        modifier = Modifier.weight(1f)
-                    )
-                    ShortcutPill(
-                        ml = 250,
-                        label = "Custom Glass",
-                        icon = Icons.Filled.LocalDrink,
-                        iconBg = if (isDarkTheme) Color(0x33FF6B4A) else Color(0xFFFFF2EE),
-                        iconTint = Color(0xFFF97316),
-                        onClick = onShowCustomDialog,
-                        isDarkTheme = isDarkTheme,
-                        customCardBg = if (isDarkTheme) null else Color(0xFFFFF2EE),
-                        customCardBorder = if (isDarkTheme) null else Color(0xFFFFD5CC),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-        }
-
-        // Daily goal controller & alarms config card
-        item {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(
-                        1.dp,
-                        if (isDarkTheme) Color(0x1AFFFFFF) else Color(0x1A000000),
-                        RoundedCornerShape(20.dp)
-                    ),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (isDarkTheme) Color(0x1A1E293B) else Color(0xB3FFFFFF)
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(18.dp)
-                ) {
-                    Text(
-                        text = "Settings & Targets",
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (isDarkTheme) Color.White else Color(0xFF1E293B),
-                        modifier = Modifier.padding(bottom = 12.dp)
-                    )
-
-                    // Daily Goal Setting Link
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { showGoalDialog() }
-                            .padding(vertical = 10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Filled.Adjust,
-                                contentDescription = "Goal Icon",
-                                tint = Color(0xFF3B82F6),
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = "Daily Intake Target",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
-                                    color = if (isDarkTheme) Color.White else Color(0xFF0F172A)
-                                )
-                                Text(
-                                    text = "Current: ${goal}ml",
-                                    fontSize = 11.sp,
-                                    color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)
-                                )
-                            }
-                        }
-                        Icon(
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = "Edit goal",
-                            tint = Color(0xFF3B82F6),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-
-                    HorizontalDivider(
-                        color = if (isDarkTheme) Color(0x1AFFFFFF) else Color(0x0D000000),
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    )
-
-                    // Meteorological Summer conditions scaling (+500ml)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Filled.WbSunny,
-                                contentDescription = "Sunny Index Icon",
-                                tint = if (isHotWeatherEnabled) Color(0xFFF59E0B) else Color(0xFF94A3B8),
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = "Meteorological Hot-Index ☀️🌡️",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
-                                    color = if (isDarkTheme) Color.White else Color(0xFF0F172A)
-                                )
-                                Text(
-                                    text = "Scale daily goal by +500ml on hot summer days",
-                                    fontSize = 11.sp,
-                                    color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)
-                                )
-                            }
-                        }
-                        Switch(
-                            checked = isHotWeatherEnabled,
-                            onCheckedChange = { onToggleHotWeather(it) },
-                            modifier = Modifier.testTag("weather_scaling_switch")
-                        )
-                    }
-
-                    HorizontalDivider(
-                        color = if (isDarkTheme) Color(0x1AFFFFFF) else Color(0x0D000000),
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    )
-
-                    // Notification Reminder Switch Toggle
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = if (remindersEnabled) Icons.Filled.NotificationsActive else Icons.Filled.NotificationsOff,
-                                contentDescription = "Alarm Active Icon",
-                                tint = if (remindersEnabled) Color(0xFF0D9488) else Color(0xFF64748B),
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = "Hydration Reminders",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
-                                    color = if (isDarkTheme) Color.White else Color(0xFF0F172A)
-                                )
-                                Text(
-                                    text = "Notify every ${intervalHours}h if goal remains",
-                                    fontSize = 11.sp,
-                                    color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)
-                                )
-                            }
-                        }
-                        Switch(
-                            checked = remindersEnabled,
-                            onCheckedChange = { onToggleReminders(it) },
-                            modifier = Modifier.testTag("notification_switch")
-                        )
-                    }
-
-                    if (remindersEnabled) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = "Reminder Interval (Hours)",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF475569)
-                        )
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            listOf(1, 2, 3, 4).forEach { hours ->
-                                FilterChip(
-                                    selected = intervalHours == hours,
-                                    onClick = { onIntervalChange(hours) },
-                                    label = { Text("${hours}h") },
-                                    colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = Color(0xFF3B82F6),
-                                        selectedLabelColor = Color.White
-                                    )
-                                )
-                            }
-                        }
-                    }
-
-                    HorizontalDivider(
-                        color = if (isDarkTheme) Color(0x1AFFFFFF) else Color(0x0D000000),
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    )
-
-                    // Theme overriding switcher
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = if (isDarkTheme) Icons.Filled.DarkMode else Icons.Filled.LightMode,
-                                contentDescription = "Active Theme Icon",
-                                tint = if (isDarkTheme) Color(0xFFFACC15) else Color(0xFFCA8A04),
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = "Dark Mode Override",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
-                                    color = if (isDarkTheme) Color.White else Color(0xFF0F172A)
-                                )
-                                Text(
-                                    text = if (isDarkTheme) "Dark theme active" else "Light theme active",
-                                    fontSize = 11.sp,
-                                    color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)
-                                )
-                            }
-                        }
-                        Switch(
-                            checked = isDarkTheme,
-                            onCheckedChange = { onDarkThemeToggle(it) },
-                            modifier = Modifier.testTag("theme_switch")
-                        )
-                    }
-                }
-            }
-        }
-
-        // Section header for Consumption Log list WITH CLEAR ALL BUTTON (Requested functionality!)
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                    .padding(vertical = 4.dp)
+                    .then(Modifier.run {
+                        this.horizontalScroll(androidx.compose.foundation.rememberScrollState())
+                    }),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Logged Items Today",
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
-                )
+                SettingsTab.values().forEach { tab ->
+                    val isSelected = activeSettingsTab == tab
+                    val bg = if (isSelected) {
+                        Color(0xFF3B82F6)
+                    } else {
+                        if (isDarkTheme) Color(0x1F1E293B) else Color(0x0F000000)
+                    }
+                    val fg = if (isSelected) Color.White else (if (isDarkTheme) Color(0xFFCBD5E1) else Color(0xFF1E293B))
 
-                if (logs.isNotEmpty()) {
-                    TextButton(
-                        onClick = { viewModel.clearAllLogsForSelectedDay() },
-                        colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFEF4444)),
-                        modifier = Modifier.testTag("clear_all_logs_button")
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(bg)
+                            .clickable {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                activeSettingsTab = tab
+                            }
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.DeleteSweep,
-                            contentDescription = "Clear All Logs",
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "Clear All Today",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text(tab.icon, fontSize = 14.sp)
+                            Text(
+                                text = tab.title,
+                                fontSize = 12.sp,
+                                fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Bold,
+                                color = fg
+                            )
+                        }
                     }
                 }
             }
         }
 
-        if (logs.isEmpty()) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Filled.WaterDrop,
-                            contentDescription = "Empty list",
-                            tint = if (isDarkTheme) Color(0x33FFFFFF) else Color(0x1A000000),
-                            modifier = Modifier.size(48.dp)
-                        )
+        // Tab routing for items
+        when (activeSettingsTab) {
+            SettingsTab.ANALYTICS -> {
+                // Circular Glass progress component
+                item {
+                    ElevatedHydrationProgressRing(
+                        percentText = percentText,
+                        totalIntake = totalIntake,
+                        goal = goal,
+                        isDarkTheme = isDarkTheme
+                    )
+                }
+
+                // Beautiful Streak Flame Glow Component
+                item {
+                    HydrationStreakFlameGlowCard(
+                        streakCount = streakCount,
+                        isDarkTheme = isDarkTheme
+                    )
+                }
+
+                // Beautiful Coach Component
+                item {
+                    HydryAICoachCard(
+                        percentage = percentage,
+                        coachPersonality = coachPersonality,
+                        onChangeCoachPersonality = onChangeCoachPersonality,
+                        isDarkTheme = isDarkTheme
+                    )
+                }
+
+                // Analytical Telemetry (Features 76-90)
+                item {
+                    AnalyticalTelemetryCard(
+                        isDarkTheme = isDarkTheme,
+                        totalIntake = totalIntake
+                    )
+                }
+
+                // Quick shortcuts pill grid directly below progress to keep layout centered, ergonomic, and easy to understand
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         Text(
-                            text = "No logs recorded for this day yet.",
+                            text = "Tap a container to log water! 💧🥤",
                             fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = if (isDarkTheme) Color(0xFF64748B) else Color(0xFF94A3B8),
-                            modifier = Modifier.padding(top = 8.dp)
+                            fontWeight = FontWeight.Bold,
+                            color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B),
+                            modifier = Modifier.align(Alignment.Start).padding(start = 4.dp, bottom = 4.dp)
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            ShortcutPill(
+                                ml = 250,
+                                label = "Water Drop",
+                                icon = Icons.Filled.WaterDrop,
+                                iconBg = if (isDarkTheme) Color(0x333B82F6) else Color(0xFFEFF6FF),
+                                iconTint = Color(0xFF3B82F6),
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    onLogWater(250)
+                                },
+                                isDarkTheme = isDarkTheme,
+                                customCardBg = if (isDarkTheme) null else Color(0xFFEFF6FF),
+                                customCardBorder = if (isDarkTheme) null else Color(0xFFDBEAFE),
+                                modifier = Modifier.weight(1f)
+                            )
+                            ShortcutPill(
+                                ml = 500,
+                                label = "Water Bottle",
+                                icon = Icons.Filled.LocalDrink,
+                                iconBg = if (isDarkTheme) Color(0x3310B981) else Color(0xFFECFDF5),
+                                iconTint = Color(0xFF10B981),
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    onLogWater(500)
+                                },
+                                isDarkTheme = isDarkTheme,
+                                customCardBg = if (isDarkTheme) null else Color(0xFFECFDF5),
+                                customCardBorder = if (isDarkTheme) null else Color(0xFFD1FAE5),
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            ShortcutPill(
+                                ml = 180,
+                                label = "Coffee Cup",
+                                icon = Icons.Filled.Coffee,
+                                iconBg = if (isDarkTheme) Color(0x33F59E0B) else Color(0xFFFFFBEB),
+                                iconTint = Color(0xFFD97706),
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    onLogWater(180)
+                                },
+                                isDarkTheme = isDarkTheme,
+                                customCardBg = if (isDarkTheme) null else Color(0xFFFFFBEB),
+                                customCardBorder = if (isDarkTheme) null else Color(0xFFFEF3C7),
+                                modifier = Modifier.weight(1f)
+                            )
+                            ShortcutPill(
+                                ml = 250,
+                                label = "Custom Glass",
+                                icon = Icons.Filled.LocalDrink,
+                                iconBg = if (isDarkTheme) Color(0x33FF6B4A) else Color(0xFFFFF2EE),
+                                iconTint = Color(0xFFF97316),
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    onShowCustomDialog()
+                                },
+                                isDarkTheme = isDarkTheme,
+                                customCardBg = if (isDarkTheme) null else Color(0xFFFFF2EE),
+                                customCardBorder = if (isDarkTheme) null else Color(0xFFFFD5CC),
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
+
+                // Section header for Consumption Log list WITH CLEAR ALL BUTTON (Requested functionality!)
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Logged Items Today",
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isDarkTheme) Color.White else Color(0xFF1E293B)
+                        )
+
+                        if (logs.isNotEmpty()) {
+                            TextButton(
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    viewModel.clearAllLogsForSelectedDay()
+                                },
+                                colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFEF4444)),
+                                modifier = Modifier.testTag("clear_all_logs_button")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.DeleteSweep,
+                                    contentDescription = "Clear All Logs",
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "Clear All Today",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (logs.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(
+                                    imageVector = Icons.Filled.WaterDrop,
+                                    contentDescription = "Empty list",
+                                    tint = if (isDarkTheme) Color(0x33FFFFFF) else Color(0x1A000000),
+                                    modifier = Modifier.size(48.dp)
+                                )
+                                Text(
+                                    text = "No logs recorded for this day yet.",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = if (isDarkTheme) Color(0xFF64748B) else Color(0xFF94A3B8),
+                                    modifier = Modifier.padding(top = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    items(logs) { item ->
+                        WaterLogListItem(
+                            log = item,
+                            onDelete = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onDeleteLog(item)
+                            },
+                            isDarkTheme = isDarkTheme
                         )
                     }
                 }
             }
-        } else {
-            items(logs) { item ->
-                WaterLogListItem(
-                    log = item,
-                    onDelete = { onDeleteLog(item) },
-                    isDarkTheme = isDarkTheme
-                )
+            SettingsTab.THEMES -> {
+                // Expanded Aesthetic Customizer (Features 1-15)
+                item {
+                    AestheticVisualCustomizerCard(
+                        viewModel = viewModel,
+                        isDarkTheme = isDarkTheme
+                    )
+                }
+            }
+            SettingsTab.PHYSIOLOGY -> {
+                // Biological Adjusters (Features 31-45)
+                item {
+                    SmartBiologicalAdjustersCard(
+                        viewModel = viewModel,
+                        isDarkTheme = isDarkTheme,
+                        goal = goal
+                    )
+                }
+
+                // Meteorological Hot-Index card
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(
+                                1.dp,
+                                if (isDarkTheme) Color(0x1AFFFFFF) else Color(0x1A000000),
+                                RoundedCornerShape(20.dp)
+                            ),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isDarkTheme) Color(0x1A1E293B) else Color(0xB3FFFFFF)
+                        )
+                    ) {
+                        Column(modifier = Modifier.padding(18.dp)) {
+                            Text(
+                                text = "Meteorological Hot-Index ☀️🌡️",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                color = if (isDarkTheme) Color.White else Color(0xFF0F172A)
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "Smart index adjuster that scales daily goals up by +500ml on dry, sunny summer days to customize hydration plans automatically.",
+                                fontSize = 11.sp,
+                                color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("Enable Sunny Index (+500ml)", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Switch(
+                                    checked = isHotWeatherEnabled,
+                                    onCheckedChange = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        onToggleHotWeather(it)
+                                    },
+                                    modifier = Modifier.testTag("weather_scaling_switch")
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            SettingsTab.QUESTS -> {
+                // Gamified RPG Quest system (Features 16-30)
+                item {
+                    GamifiedRpgQuestCard(
+                        viewModel = viewModel,
+                        isDarkTheme = isDarkTheme
+                    )
+                }
+            }
+            SettingsTab.SOUNDS -> {
+                // Sound sandbox Component (Features 46-60)
+                item {
+                    TactileSoundSandboxCard(
+                        viewModel = viewModel,
+                        isDarkTheme = isDarkTheme
+                    )
+                }
+            }
+            SettingsTab.SYSTEM -> {
+                // Smart tech integrations (Features 91-108)
+                item {
+                    SmartTechIntegrationsCard(
+                        viewModel = viewModel,
+                        isDarkTheme = isDarkTheme
+                    )
+                }
+
+                // Daily goal controller & alarms config card
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(
+                                1.dp,
+                                if (isDarkTheme) Color(0x1AFFFFFF) else Color(0x1A000000),
+                                RoundedCornerShape(20.dp)
+                            ),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isDarkTheme) Color(0x1A1E293B) else Color(0xB3FFFFFF)
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(18.dp)
+                        ) {
+                            Text(
+                                text = "Settings & Targets",
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isDarkTheme) Color.White else Color(0xFF1E293B),
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+
+                            // Daily Goal Setting Link
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        showGoalDialog()
+                                    }
+                                    .padding(vertical = 10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Adjust,
+                                        contentDescription = "Goal Icon",
+                                        tint = Color(0xFF3B82F6),
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column {
+                                        Text(
+                                            text = "Daily Intake Target",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp,
+                                            color = if (isDarkTheme) Color.White else Color(0xFF0F172A)
+                                        )
+                                        Text(
+                                            text = "Current: ${goal}ml",
+                                            fontSize = 11.sp,
+                                            color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)
+                                        )
+                                    }
+                                }
+                                Icon(
+                                    imageVector = Icons.Filled.Edit,
+                                    contentDescription = "Edit goal",
+                                    tint = Color(0xFF3B82F6),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            HorizontalDivider(
+                                color = if (isDarkTheme) Color(0x1AFFFFFF) else Color(0x0D000000),
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+
+                            // Notification Reminder Switch Toggle
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = if (remindersEnabled) Icons.Filled.NotificationsActive else Icons.Filled.NotificationsOff,
+                                        contentDescription = "Alarm Active Icon",
+                                        tint = if (remindersEnabled) Color(0xFF0D9488) else Color(0xFF64748B),
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column {
+                                        Text(
+                                            text = "Hydration Reminders",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp,
+                                            color = if (isDarkTheme) Color.White else Color(0xFF0F172A)
+                                        )
+                                        Text(
+                                            text = "Notify every ${intervalHours}h if goal remains",
+                                            fontSize = 11.sp,
+                                            color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)
+                                        )
+                                    }
+                                }
+                                Switch(
+                                    checked = remindersEnabled,
+                                    onCheckedChange = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        onToggleReminders(it)
+                                    },
+                                    modifier = Modifier.testTag("notification_switch")
+                                )
+                            }
+
+                            if (remindersEnabled) {
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Text(
+                                    text = "Reminder Interval (Hours)",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF475569)
+                                )
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 6.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    listOf(1, 2, 3, 4).forEach { hours ->
+                                        FilterChip(
+                                            selected = intervalHours == hours,
+                                            onClick = {
+                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                onIntervalChange(hours)
+                                            },
+                                            label = { Text("${hours}h") },
+                                            colors = FilterChipDefaults.filterChipColors(
+                                                selectedContainerColor = Color(0xFF3B82F6),
+                                                selectedLabelColor = Color.White
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+
+                            HorizontalDivider(
+                                color = if (isDarkTheme) Color(0x1AFFFFFF) else Color(0x0D000000),
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+
+                            // Theme overriding switcher
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = if (isDarkTheme) Icons.Filled.DarkMode else Icons.Filled.LightMode,
+                                        contentDescription = "Active Theme Icon",
+                                        tint = if (isDarkTheme) Color(0xFFFACC15) else Color(0xFFCA8A04),
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column {
+                                        Text(
+                                            text = "Dark Mode Override",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp,
+                                            color = if (isDarkTheme) Color.White else Color(0xFF0F172A)
+                                        )
+                                        Text(
+                                            text = if (isDarkTheme) "Dark theme active" else "Light theme active",
+                                            fontSize = 11.sp,
+                                            color = if (isDarkTheme) Color(0xFF94A3B8) else Color(0xFF64748B)
+                                        )
+                                    }
+                                }
+                                Switch(
+                                    checked = isDarkTheme,
+                                    onCheckedChange = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        onDarkThemeToggle(it)
+                                    },
+                                    modifier = Modifier.testTag("theme_switch")
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
 

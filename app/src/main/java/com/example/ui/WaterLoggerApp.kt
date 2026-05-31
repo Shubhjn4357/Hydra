@@ -113,6 +113,7 @@ fun WaterLoggerApp(
                     when (tab) {
                         AppTab.LOG -> {
                             HydrationLogScreen(
+                                viewModel = viewModel,
                                 totalIntake = totalIntake,
                                 goal = goal,
                                 onLogWater = { viewModel.addWaterLog(it) },

@@ -183,6 +183,14 @@ class WaterViewModel(application: Application) : AndroidViewModel(application) {
         sharedPrefs.edit().putBoolean("coral_forest_enabled", enabled).apply()
     }
 
+    private val _activeSticker = MutableStateFlow(sharedPrefs.getString("active_sticker", "None 🚫") ?: "None 🚫")
+    val activeSticker = _activeSticker.asStateFlow()
+
+    fun updateActiveSticker(sticker: String) {
+        _activeSticker.value = sticker
+        sharedPrefs.edit().putString("active_sticker", sticker).apply()
+    }
+
     // RPG Avatar variables
     private val _rpgLevel = MutableStateFlow(sharedPrefs.getInt("rpg_level", 1))
     val rpgLevel = _rpgLevel.asStateFlow()

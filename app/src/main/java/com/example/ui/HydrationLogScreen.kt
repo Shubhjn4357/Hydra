@@ -37,9 +37,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.viewmodel.WaterViewModel
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HydrationLogScreen(
+    viewModel: WaterViewModel,
     totalIntake: Int,
     goal: Int,
     onLogWater: (Int) -> Unit,
@@ -51,6 +55,14 @@ fun HydrationLogScreen(
     onPreviousDay: () -> Unit,
     onNextDay: () -> Unit
 ) {
+    val vesselSilhouette by viewModel.customVesselSilhouette.collectAsStateWithLifecycle()
+    val activeTheme by viewModel.activeBottleTheme.collectAsStateWithLifecycle()
+    val glassFrosting by viewModel.glassFrosting.collectAsStateWithLifecycle()
+    val isLavaLampEnabled by viewModel.isLavaLampEnabled.collectAsStateWithLifecycle()
+    val isRaindropsEnabled by viewModel.isRaindropsEnabled.collectAsStateWithLifecycle()
+    val isCoralForestEnabled by viewModel.isCoralForestEnabled.collectAsStateWithLifecycle()
+    val activeSticker by viewModel.activeSticker.collectAsStateWithLifecycle()
+
     val percent = if (goal > 0) (totalIntake.toFloat() / goal).coerceIn(0f, 1.5f) else 0f
     val remaining = (goal - totalIntake).coerceAtLeast(0)
 
@@ -174,6 +186,13 @@ fun HydrationLogScreen(
                 LiquidBottleWave(
                     percentage = animatedPercent,
                     isDarkTheme = isDarkTheme,
+                    vesselSilhouette = vesselSilhouette,
+                    activeTheme = activeTheme,
+                    glassFrosting = glassFrosting,
+                    isLavaLampEnabled = isLavaLampEnabled,
+                    isRaindropsEnabled = isRaindropsEnabled,
+                    isCoralForestEnabled = isCoralForestEnabled,
+                    activeSticker = activeSticker,
                     modifier = Modifier.fillMaxSize()
                 )
 
