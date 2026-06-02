@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Switch, Dimensions } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { Sparkles, Dumbbell, Glasses } from 'lucide-react-native';
 import { useHydration } from '../context/HydrationContext';
 import { useTheme } from '../hooks/useTheme';
 import { LiquidThemeName } from '../theme/designTokens';
+import { haptics } from '../utils/haptics';
 
 export function StatsScreen() {
   const {
@@ -12,15 +12,6 @@ export function StatsScreen() {
     deleteLog,
     totalIntake,
     getEffectiveGoal,
-    rpgLevel,
-    rpgXp,
-    strength,
-    intellect,
-    agility,
-    mysteryBubbleText,
-    setMysteryBubbleText,
-    wardrobeOutfit,
-    setWardrobeOutfit,
     vesselSilhouette,
     setVesselSilhouette,
     activeBottleTheme,
@@ -51,8 +42,7 @@ export function StatsScreen() {
   const { colors, spacing, borderRadius, isDarkTheme } = useTheme();
 
   // Active sub-tab state
-  const [activeTab, setActiveTab] = useState<'analytics' | 'customization' | 'rpg' | 'physiology'>('analytics');
-  const [jackpotResult, setJackpotResult] = useState('💦 💦 💦');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'customization' | 'physiology'>('analytics');
 
   const goal = getEffectiveGoal();
   const percentage = goal > 0 ? totalIntake / goal : 0;
@@ -64,17 +54,89 @@ export function StatsScreen() {
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - circumference * Math.min(percentage, 1.0);
 
-  const handleSlotSpin = () => {
-    const symbols = ['🐳', '💦', '💧', '🦦', '💖', '👑'];
-    const s1 = symbols[Math.floor(Math.random() * symbols.length)];
-    const s2 = symbols[Math.floor(Math.random() * symbols.length)];
-    const s3 = symbols[Math.floor(Math.random() * symbols.length)];
-    setJackpotResult(`${s1} ${s2} ${s3}`);
-    if (s1 === s2 && s2 === s3) {
-      setMysteryBubbleText('🎰 ULTRA HYDRO JACKPOT WINNER! Earned +500ml XP bonus! 🐳');
-    } else {
-      setMysteryBubbleText('Slots spun! Maintain high hydration compliance levels.');
-    }
+  // Helper selectors with built-in tactile haptics
+  const handleVesselSelect = (v: string) => {
+    haptics.light();
+    setVesselSilhouette(v);
+  };
+
+  const handleThemeSelect = (themeName: LiquidThemeName) => {
+    haptics.light();
+    setActiveBottleTheme(themeName);
+  };
+
+  const handleStickerSelect = (st: string) => {
+    haptics.light();
+    setActiveSticker(st);
+  };
+
+  const toggleLavaLamp = (val: boolean) => {
+    haptics.light();
+    setIsLavaLamp(val);
+  };
+
+  const toggleRaindrops = (val: boolean) => {
+    haptics.light();
+    setIsRaindrops(val);
+  };
+
+  const toggleCoralForest = (val: boolean) => {
+    haptics.light();
+    setIsCoralForest(val);
+  };
+
+  const toggleHotWeather = (val: boolean) => {
+    haptics.light();
+    setIsHotWeather(val);
+  };
+
+  const toggleCoffeeTax = (val: boolean) => {
+    haptics.light();
+    setIsCoffeeTax(val);
+  };
+
+  const toggleAltBooster = (val: boolean) => {
+    haptics.light();
+    setIsAltBooster(val);
+  };
+
+  const toggleSodiumTax = (val: boolean) => {
+    haptics.light();
+    setIsSodiumTax(val);
+  };
+
+  const togglePregnancyMode = (val: boolean) => {
+    haptics.light();
+    setIsPregnancyMode(val);
+  };
+
+  const toggleIllnessRecovery = (val: boolean) => {
+    haptics.light();
+    setIsIllnessRecovery(val);
+  };
+
+  const handleClearData = () => {
+    haptics.doublePulse();
+    resetAllData();
+  };
+
+  const handleLogDeletion = (id: string) => {
+    haptics.doublePulse();
+    deleteLog(id);
+  };
+
+  const handleTabToggle = (tab: 'analytics' | 'customization' | 'physiology') => {
+    haptics.light();
+    setActiveTab(tab);
+  };
+
+  const switchThemeStyles = {
+    trackColor: {
+      false: isDarkTheme ? '#334155' : '#CBD5E1',
+      true: colors.primary
+    },
+    thumbColor: isDarkTheme ? '#F8FAFC' : '#FFFFFF',
+    ios_backgroundColor: isDarkTheme ? '#1E293B' : '#E2E8F0'
   };
 
   const renderAnalytics = () => {
@@ -127,11 +189,11 @@ export function StatsScreen() {
           ) : (
             logs.map((log) => (
               <View key={log.id} style={[styles.logItem, { borderColor: colors.border }]}>
-                <View>
+                <View style={{ flex: 1, paddingRight: 8 }}>
                   <Text style={[styles.logAmount, { color: colors.textPrimary }]}>{log.amount} ml Gulp</Text>
                   <Text style={[styles.logMeta, { color: colors.textSecondary }]}>Receptacle: {log.vessel} • Time: {log.time}</Text>
                 </View>
-                <TouchableOpacity style={styles.deleteBtn} onPress={() => deleteLog(log.id)}>
+                <TouchableOpacity style={styles.deleteBtn} onPress={() => handleLogDeletion(log.id)}>
                   <Text style={styles.deleteBtnText}>Delete 🚫</Text>
                 </TouchableOpacity>
               </View>
@@ -142,7 +204,7 @@ export function StatsScreen() {
         {/* Reset button sandbox control */}
         <TouchableOpacity 
           style={[styles.resetBtn, { borderRadius: borderRadius.lg }]} 
-          onPress={resetAllData}
+          onPress={handleClearData}
           activeOpacity={0.8}
         >
           <Text style={styles.resetBtnText}>Clear Cache & Start Clean 🧹</Text>
@@ -169,7 +231,7 @@ export function StatsScreen() {
                     borderRadius: borderRadius.md
                   }
                 ]}
-                onPress={() => setVesselSilhouette(v)}
+                onPress={() => handleVesselSelect(v)}
               >
                 <Text style={[styles.choiceBtnText, { color: vesselSilhouette === v ? '#FFF' : colors.textPrimary }]}>
                   {v}
@@ -194,7 +256,7 @@ export function StatsScreen() {
                     borderRadius: borderRadius.md
                   }
                 ]}
-                onPress={() => setActiveBottleTheme(t as LiquidThemeName)}
+                onPress={() => handleThemeSelect(t as LiquidThemeName)}
               >
                 <Text style={[styles.choiceBtnText, { color: activeBottleTheme === t ? '#FFF' : colors.textPrimary }]}>
                   {t}
@@ -212,21 +274,39 @@ export function StatsScreen() {
             <View>
               <Text style={[styles.switchLabel, { color: colors.textPrimary }]}>Lava Lamp Floating Bubbles 🌋</Text>
             </View>
-            <Switch value={isLavaLamp} onValueChange={setIsLavaLamp} />
+            <Switch 
+              value={isLavaLamp} 
+              onValueChange={toggleLavaLamp}
+              trackColor={switchThemeStyles.trackColor}
+              thumbColor={switchThemeStyles.thumbColor}
+              ios_backgroundColor={switchThemeStyles.ios_backgroundColor}
+            />
           </View>
 
           <View style={styles.switchRow}>
             <View>
               <Text style={[styles.switchLabel, { color: colors.textPrimary }]}>Solfeggio Zen Raindrops 🌧️</Text>
             </View>
-            <Switch value={isRaindrops} onValueChange={setIsRaindrops} />
+            <Switch 
+              value={isRaindrops} 
+              onValueChange={toggleRaindrops}
+              trackColor={switchThemeStyles.trackColor}
+              thumbColor={switchThemeStyles.thumbColor}
+              ios_backgroundColor={switchThemeStyles.ios_backgroundColor}
+            />
           </View>
 
           <View style={styles.switchRow}>
             <View>
               <Text style={[styles.switchLabel, { color: colors.textPrimary }]}>Coral Reef Forest Flora 🌿</Text>
             </View>
-            <Switch value={isCoralForest} onValueChange={setIsCoralForest} />
+            <Switch 
+              value={isCoralForest} 
+              onValueChange={toggleCoralForest}
+              trackColor={switchThemeStyles.trackColor}
+              thumbColor={switchThemeStyles.thumbColor}
+              ios_backgroundColor={switchThemeStyles.ios_backgroundColor}
+            />
           </View>
         </View>
 
@@ -245,86 +325,10 @@ export function StatsScreen() {
                     borderRadius: borderRadius.md
                   }
                 ]}
-                onPress={() => setActiveSticker(st)}
+                onPress={() => handleStickerSelect(st)}
               >
                 <Text style={[styles.choiceBtnText, { color: activeSticker === st ? '#FFF' : colors.textPrimary }]}>
                   {st}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </View>
-    );
-  };
-
-  const renderRpg = () => {
-    return (
-      <View style={styles.tabContent}>
-        {/* Virtual RPG elements */}
-        <View style={[styles.card, { backgroundColor: colors.cardBgSolid, borderColor: colors.border, borderRadius: borderRadius.xl }]}>
-          <View style={styles.rpgRow}>
-            <Text style={[styles.rpgAvatarText, { color: colors.textPrimary }]}>👾 Hydry Bot Lv. {rpgLevel}</Text>
-            <Text style={[styles.rpgMeta, { color: colors.textSecondary }]}>XP: {rpgXp}/{rpgLevel * 100}</Text>
-          </View>
-          <View style={styles.xpBarContainer}>
-            <View style={[styles.xpBarFilled, { backgroundColor: colors.primary, width: `${(rpgXp / (rpgLevel * 100)) * 100}%` }]} />
-          </View>
-
-          {/* Core attributes list */}
-          <View style={styles.statsSpecRow}>
-            <View style={styles.statsBox}>
-              <Dumbbell size={16} color="#3B82F6" />
-              <Text style={[styles.statsBoxTitle, { color: colors.textPrimary }]}>STR Strength</Text>
-              <Text style={[styles.statsBoxNum, { color: colors.textPrimary }]}>{strength}</Text>
-            </View>
-            <View style={styles.statsBox}>
-              <Glasses size={16} color="#10B981" />
-              <Text style={[styles.statsBoxTitle, { color: colors.textPrimary }]}>INT Intellect</Text>
-              <Text style={[styles.statsBoxNum, { color: colors.textPrimary }]}>{intellect}</Text>
-            </View>
-            <View style={styles.statsBox}>
-              <Sparkles size={16} color="#F59E0B" />
-              <Text style={[styles.statsBoxTitle, { color: colors.textPrimary }]}>AGI Agility</Text>
-              <Text style={[styles.statsBoxNum, { color: colors.textPrimary }]}>{agility}</Text>
-            </View>
-          </View>
-
-          <Text style={[styles.balloonSpeech, { backgroundColor: isDarkTheme ? '#1E1B4B' : '#EEF2FF', color: colors.textPrimary, borderRadius: borderRadius.md }]}>
-            💬 "{mysteryBubbleText}"
-          </Text>
-        </View>
-
-        {/* Spin machine games */}
-        <View style={[styles.card, { backgroundColor: colors.cardBgSolid, borderColor: colors.border, borderRadius: borderRadius.xl }]}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>🎰 Slots Spin bonus:</Text>
-          <View style={styles.slotRow}>
-            <Text style={styles.slotResultText}>{jackpotResult}</Text>
-            <TouchableOpacity style={[styles.spinButton, { borderRadius: borderRadius.md }]} onPress={handleSlotSpin}>
-              <Text style={styles.spinButtonText}>Spin 🎰</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Bot accessory outfit choosing */}
-        <View style={[styles.card, { backgroundColor: colors.cardBgSolid, borderColor: colors.border, borderRadius: borderRadius.xl }]}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>👗 Wardrobe Wearable Accessory:</Text>
-          <View style={styles.choiceRow}>
-            {['None', 'Sunglasses 😎', 'Royal Crown 👑'].map((item) => (
-              <TouchableOpacity
-                key={item}
-                style={[
-                  styles.choiceBtn,
-                  {
-                    backgroundColor: wardrobeOutfit === item ? '#10B981' : colors.background,
-                    borderColor: colors.border,
-                    borderRadius: borderRadius.md
-                  }
-                ]}
-                onPress={() => setWardrobeOutfit(item)}
-              >
-                <Text style={[styles.choiceBtnText, { color: wardrobeOutfit === item ? '#FFF' : colors.textPrimary }]}>
-                  {item}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -342,11 +346,17 @@ export function StatsScreen() {
           <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Meteorological weather targets:</Text>
           
           <View style={styles.switchRow}>
-            <View>
+            <View style={{ flex: 1, paddingRight: 8 }}>
               <Text style={[styles.switchLabel, { color: colors.textPrimary }]}>Enable Sunny Index 🏜️</Text>
               <Text style={[styles.switchSub, { color: colors.textSecondary }]}>Adds +500ml target due to sunshine risk</Text>
             </View>
-            <Switch value={isHotWeather} onValueChange={setIsHotWeather} />
+            <Switch 
+              value={isHotWeather} 
+              onValueChange={toggleHotWeather}
+              trackColor={switchThemeStyles.trackColor}
+              thumbColor={switchThemeStyles.thumbColor}
+              ios_backgroundColor={switchThemeStyles.ios_backgroundColor}
+            />
           </View>
         </View>
 
@@ -354,43 +364,73 @@ export function StatsScreen() {
           <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Activity & Biology Target Modifiers:</Text>
           
           <View style={styles.switchRow}>
-            <View>
+            <View style={{ flex: 1, paddingRight: 8 }}>
               <Text style={[styles.switchLabel, { color: colors.textPrimary }]}>Caffeine target tax (+250ml) ☕</Text>
               <Text style={[styles.switchSub, { color: colors.textSecondary }]}>Replenish moisture lost from tea/coffees</Text>
             </View>
-            <Switch value={isCoffeeTax} onValueChange={setIsCoffeeTax} />
+            <Switch 
+              value={isCoffeeTax} 
+              onValueChange={toggleCoffeeTax}
+              trackColor={switchThemeStyles.trackColor}
+              thumbColor={switchThemeStyles.thumbColor}
+              ios_backgroundColor={switchThemeStyles.ios_backgroundColor}
+            />
           </View>
 
           <View style={styles.switchRow}>
-            <View>
+            <View style={{ flex: 1, paddingRight: 8 }}>
               <Text style={[styles.switchLabel, { color: colors.textPrimary }]}>Altitude Target Booster (+300ml) 🏔️</Text>
               <Text style={[styles.switchSub, { color: colors.textSecondary }]}>Add buffer for thin, dry high altitudes</Text>
             </View>
-            <Switch value={isAltBooster} onValueChange={setIsAltBooster} />
+            <Switch 
+              value={isAltBooster} 
+              onValueChange={toggleAltBooster}
+              trackColor={switchThemeStyles.trackColor}
+              thumbColor={switchThemeStyles.thumbColor}
+              ios_backgroundColor={switchThemeStyles.ios_backgroundColor}
+            />
           </View>
 
           <View style={styles.switchRow}>
-            <View>
+            <View style={{ flex: 1, paddingRight: 8 }}>
               <Text style={[styles.switchLabel, { color: colors.textPrimary }]}>Sodium salt pizza tax (+300ml) 🍟</Text>
               <Text style={[styles.switchSub, { color: colors.textSecondary }]}>Rebalance cellular salt content limits</Text>
             </View>
-            <Switch value={isSodiumTax} onValueChange={setIsSodiumTax} />
+            <Switch 
+              value={isSodiumTax} 
+              onValueChange={toggleSodiumTax}
+              trackColor={switchThemeStyles.trackColor}
+              thumbColor={switchThemeStyles.thumbColor}
+              ios_backgroundColor={switchThemeStyles.ios_backgroundColor}
+            />
           </View>
 
           <View style={styles.switchRow}>
-            <View>
+            <View style={{ flex: 1, paddingRight: 8 }}>
               <Text style={[styles.switchLabel, { color: colors.textPrimary }]}>Pregnancy Nursing target (+600ml) 🤱</Text>
               <Text style={[styles.switchSub, { color: colors.textSecondary }]}>Provide essential nursing fluids safety</Text>
             </View>
-            <Switch value={isPregnancyMode} onValueChange={setIsPregnancyMode} />
+            <Switch 
+              value={isPregnancyMode} 
+              onValueChange={togglePregnancyMode}
+              trackColor={switchThemeStyles.trackColor}
+              thumbColor={switchThemeStyles.thumbColor}
+              ios_backgroundColor={switchThemeStyles.ios_backgroundColor}
+            />
           </View>
 
           <View style={styles.switchRow}>
-            <View>
+            <View style={{ flex: 1, paddingRight: 8 }}>
               <Text style={[styles.switchLabel, { color: colors.textPrimary }]}>Illness Recovering (+400ml) 🤒</Text>
               <Text style={[styles.switchSub, { color: colors.textSecondary }]}>Extra moisture to clear quick infections</Text>
             </View>
-            <Switch value={isIllnessRecovery} onValueChange={setIsIllnessRecovery} />
+            <Switch 
+              value={isIllnessRecovery} 
+              onValueChange={toggleIllnessRecovery}
+              trackColor={switchThemeStyles.trackColor}
+              thumbColor={switchThemeStyles.thumbColor}
+              ios_backgroundColor={switchThemeStyles.ios_backgroundColor}
+            />
           </View>
         </View>
       </View>
@@ -406,7 +446,7 @@ export function StatsScreen() {
 
       {/* Tabs list view */}
       <View style={[styles.tabsStrip, { borderRadius: borderRadius.lg }]}>
-        {(['analytics', 'customization', 'rpg', 'physiology'] as const).map((tab) => (
+        {(['analytics', 'customization', 'physiology'] as const).map((tab) => (
           <TouchableOpacity
             key={tab}
             style={[
@@ -416,7 +456,7 @@ export function StatsScreen() {
                 borderRadius: borderRadius.md
               }
             ]}
-            onPress={() => setActiveTab(tab)}
+            onPress={() => handleTabToggle(tab)}
           >
             <Text style={[styles.tabBtnText, { color: activeTab === tab ? '#FFF' : colors.textSecondary }]}>
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -429,7 +469,6 @@ export function StatsScreen() {
       <View style={styles.tabsContentContainer}>
         {activeTab === 'analytics' && renderAnalytics()}
         {activeTab === 'customization' && renderCustomization()}
-        {activeTab === 'rpg' && renderRpg()}
         {activeTab === 'physiology' && renderPhysiology()}
       </View>
     </ScrollView>
@@ -547,78 +586,6 @@ const styles = StyleSheet.create({
   },
   choiceBtnText: {
     fontSize: 11,
-    fontWeight: '800',
-  },
-  rpgRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  rpgAvatarText: {
-    fontSize: 15,
-    fontWeight: '900',
-  },
-  rpgMeta: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  xpBarContainer: {
-    height: 10,
-    backgroundColor: 'rgba(148, 163, 184, 0.15)',
-    borderRadius: 5,
-    overflow: 'hidden',
-    marginBottom: 16,
-  },
-  xpBarFilled: {
-    height: '100%',
-  },
-  statsSpecRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 8,
-    marginBottom: 14,
-  },
-  statsBox: {
-    flex: 1,
-    alignItems: 'center',
-    padding: 10,
-    borderRadius: 12,
-    backgroundColor: 'rgba(148, 163, 184, 0.08)',
-  },
-  statsBoxTitle: {
-    fontSize: 9,
-    fontWeight: '800',
-    marginTop: 4,
-  },
-  statsBoxNum: {
-    fontSize: 16,
-    fontWeight: '900',
-    marginTop: 2,
-  },
-  balloonSpeech: {
-    padding: 12,
-    fontSize: 12,
-    fontWeight: '700',
-    lineHeight: 16,
-  },
-  slotRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  slotResultText: {
-    fontSize: 22,
-    fontWeight: '900',
-  },
-  spinButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: '#10B981',
-  },
-  spinButtonText: {
-    color: '#FFF',
-    fontSize: 12,
     fontWeight: '800',
   },
   switchRow: {

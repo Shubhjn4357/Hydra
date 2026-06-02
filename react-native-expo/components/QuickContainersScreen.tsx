@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, ScrollView, TextInput, Keyboa
 import { CupSoda, GlassWater, Coffee, Compass } from 'lucide-react-native';
 import { useHydration } from '../context/HydrationContext';
 import { useTheme } from '../hooks/useTheme';
+import { haptics } from '../utils/haptics';
 
 export function QuickContainersScreen() {
   const { addWater } = useHydration();
@@ -17,9 +18,15 @@ export function QuickContainersScreen() {
     { title: 'Giant Gulp', amount: 1000, icon: Compass, desc: 'Ocean Submarine Gulp 🐳', color: '#F59E0B', bg: colors.background === '#0F172A' ? 'rgba(245, 158, 11, 0.15)' : '#FFFBEB' },
   ];
 
+  const handlePresetPress = (amount: number) => {
+    haptics.medium();
+    addWater(amount);
+  };
+
   const handleCustomSubmit = () => {
     const val = parseInt(customVal, 10);
     if (!isNaN(val) && val > 0) {
+      haptics.doublePulse();
       addWater(val);
       setCustomVal('');
       Keyboard.dismiss();
@@ -50,7 +57,7 @@ export function QuickContainersScreen() {
                   borderRadius: borderRadius.xl
                 }
               ]}
-              onPress={() => addWater(item.amount)}
+              onPress={() => handlePresetPress(item.amount)}
               activeOpacity={0.8}
             >
               <View style={[styles.iconContainer, { backgroundColor: item.bg }]}>

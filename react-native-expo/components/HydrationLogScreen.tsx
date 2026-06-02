@@ -4,6 +4,7 @@ import { LiquidBottleWave } from './LiquidBottleWave';
 import { Plus, Flame } from 'lucide-react-native';
 import { useHydration } from '../context/HydrationContext';
 import { useTheme } from '../hooks/useTheme';
+import { haptics } from '../utils/haptics';
 
 export function HydrationLogScreen() {
   const { totalIntake, getEffectiveGoal, addWater } = useHydration();
@@ -12,6 +13,11 @@ export function HydrationLogScreen() {
   const goal = getEffectiveGoal();
   const percentage = goal > 0 ? Math.min(totalIntake / goal, 1.2) : 0;
   const percentageDisplay = Math.round(percentage * 100);
+
+  const handleQuickLog = (amount: number) => {
+    haptics.medium();
+    addWater(amount);
+  };
 
   return (
     <ScrollView contentContainerStyle={[styles.scroll, { padding: spacing.lg }]}>
@@ -86,7 +92,7 @@ export function HydrationLogScreen() {
         <View style={styles.shortcutRow}>
           <TouchableOpacity
             style={[styles.shortcutBtn, { backgroundColor: colors.primary, borderRadius: borderRadius.lg }]}
-            onPress={() => addWater(250)}
+            onPress={() => handleQuickLog(250)}
             activeOpacity={0.8}
           >
             <Plus size={20} color="#fff" />
@@ -95,7 +101,7 @@ export function HydrationLogScreen() {
 
           <TouchableOpacity
             style={[styles.shortcutBtn, { backgroundColor: '#10B981', borderRadius: borderRadius.lg }]}
-            onPress={() => addWater(500)}
+            onPress={() => handleQuickLog(500)}
             activeOpacity={0.8}
           >
             <Plus size={20} color="#fff" />

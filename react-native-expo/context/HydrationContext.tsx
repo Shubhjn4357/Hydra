@@ -57,16 +57,6 @@ interface HydrationContextType {
   gulpTempo: number;
   setGulpTempo: (t: number) => void;
 
-  // RPG stats
-  rpgLevel: number;
-  rpgXp: number;
-  strength: number;
-  intellect: number;
-  agility: number;
-  mysteryBubbleText: string;
-  setMysteryBubbleText: (t: string) => void;
-  wardrobeOutfit: string;
-  setWardrobeOutfit: (o: string) => void;
   resetAllData: () => Promise<void>;
 }
 
@@ -101,13 +91,7 @@ export const HydrationProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [binauralFrequency, setBinauralFrequency] = useState(432);
   const [gulpTempo, setGulpTempo] = useState(1.0);
 
-  const [rpgLevel, setRpgLevel] = useState(1);
-  const [rpgXp, setRpgXp] = useState(25);
-  const [strength, setStrength] = useState(10);
-  const [intellect, setIntellect] = useState(10);
-  const [agility, setAgility] = useState(10);
-  const [mysteryBubbleText, setMysteryBubbleText] = useState('Ready for focus meditation? Press Spin or drink!');
-  const [wardrobeOutfit, setWardrobeOutfit] = useState('None');
+
 
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -135,13 +119,7 @@ export const HydrationProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           if (parsed.isCoralForest !== undefined) setIsCoralForest(parsed.isCoralForest);
           if (parsed.binauralFrequency !== undefined) setBinauralFrequency(parsed.binauralFrequency);
           if (parsed.gulpTempo !== undefined) setGulpTempo(parsed.gulpTempo);
-          if (parsed.rpgLevel !== undefined) setRpgLevel(parsed.rpgLevel);
-          if (parsed.rpgXp !== undefined) setRpgXp(parsed.rpgXp);
-          if (parsed.strength !== undefined) setStrength(parsed.strength);
-          if (parsed.intellect !== undefined) setIntellect(parsed.intellect);
-          if (parsed.agility !== undefined) setAgility(parsed.agility);
-          if (parsed.mysteryBubbleText !== undefined) setMysteryBubbleText(parsed.mysteryBubbleText);
-          if (parsed.wardrobeOutfit !== undefined) setWardrobeOutfit(parsed.wardrobeOutfit);
+
         }
       } catch (e) {
         console.error('Failed to load storage values:', e);
@@ -175,13 +153,7 @@ export const HydrationProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           isCoralForest,
           binauralFrequency,
           gulpTempo,
-          rpgLevel,
-          rpgXp,
-          strength,
-          intellect,
-          agility,
-          mysteryBubbleText,
-          wardrobeOutfit,
+
         };
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
       } catch (e) {
@@ -207,13 +179,7 @@ export const HydrationProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     isCoralForest,
     binauralFrequency,
     gulpTempo,
-    rpgLevel,
-    rpgXp,
-    strength,
-    intellect,
-    agility,
-    mysteryBubbleText,
-    wardrobeOutfit,
+
     isLoaded,
   ]);
 
@@ -238,38 +204,11 @@ export const HydrationProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       time: timeNow,
       vessel: vesselSilhouette,
     };
-    setLogs((prev) => [newLog, ...prev]);
-
-    // RPG XP addition rules
-    const gainedXp = Math.floor(amount / 5);
-    let nextXp = rpgXp + gainedXp;
-    let nextLevel = rpgLevel;
-    let nextStrength = strength;
-    let nextIntellect = intellect;
-    let nextAgility = agility;
-
-    const threshold = nextLevel * 100;
-    if (nextXp >= threshold) {
-      nextXp -= threshold;
-      nextLevel += 1;
-      nextStrength += 2;
-      nextIntellect += 3;
-      nextAgility += 1;
-      setMysteryBubbleText(`🎉 LEVEL UP! Status levels up to Level ${nextLevel}! Attributes upgraded!`);
-    } else {
-      setMysteryBubbleText(`Delicious gulp logged! Gained +${gainedXp} XP 🧠`);
-    }
-
-    setRpgXp(nextXp);
-    setRpgLevel(nextLevel);
-    setStrength(nextStrength);
-    setIntellect(nextIntellect);
-    setAgility(nextAgility);
+  setLogs((prev) => [newLog, ...prev]);
   };
 
   const deleteLog = (id: string) => {
     setLogs((prev) => prev.filter((log) => log.id !== id));
-    setMysteryBubbleText('Deleted drink log. Recalculated total.');
   };
 
   const resetAllData = async () => {
@@ -286,12 +225,6 @@ export const HydrationProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setVesselSilhouette('Glass Jar');
       setActiveBottleTheme('Deep Blue');
       setActiveSticker('Otter 🦦');
-      setRpgLevel(1);
-      setRpgXp(25);
-      setStrength(10);
-      setIntellect(10);
-      setAgility(10);
-      setMysteryBubbleText('System cache cleared! Restarted metrics.');
     } catch (e) {
       console.error(e);
     }
@@ -337,15 +270,7 @@ export const HydrationProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setBinauralFrequency,
         gulpTempo,
         setGulpTempo,
-        rpgLevel,
-        rpgXp,
-        strength,
-        intellect,
-        agility,
-        mysteryBubbleText,
-        setMysteryBubbleText,
-        wardrobeOutfit,
-        setWardrobeOutfit,
+
         resetAllData,
       }}
     >

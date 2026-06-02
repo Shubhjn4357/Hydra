@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native';
 import { GlassWater, Zap, BarChart3, Radio } from 'lucide-react-native';
 import { useTheme } from '../hooks/useTheme';
+import { haptics } from '../utils/haptics';
 
 interface Props {
   currentScreen: 'log' | 'quick' | 'stats' | 'meditation';
@@ -11,12 +12,17 @@ interface Props {
 export function GlassyBottomNavigationBar({ currentScreen, setCurrentScreen }: Props) {
   const { colors, borderRadius } = useTheme();
 
+  const handlePress = (screen: 'log' | 'quick' | 'stats' | 'meditation') => {
+    haptics.light();
+    setCurrentScreen(screen);
+  };
+
   return (
     <View style={[styles.navbar, { backgroundColor: colors.cardBg, borderColor: colors.border, borderRadius: borderRadius.xl }]}>
       {/* Tab 1: Hydration Log */}
       <TouchableOpacity
         style={styles.tab}
-        onPress={() => setCurrentScreen('log')}
+        onPress={() => handlePress('log')}
         activeOpacity={0.7}
       >
         <GlassWater
@@ -36,7 +42,7 @@ export function GlassyBottomNavigationBar({ currentScreen, setCurrentScreen }: P
       {/* Tab 2: Quick Logs */}
       <TouchableOpacity
         style={styles.tab}
-        onPress={() => setCurrentScreen('quick')}
+        onPress={() => handlePress('quick')}
         activeOpacity={0.7}
       >
         <Zap
@@ -56,7 +62,7 @@ export function GlassyBottomNavigationBar({ currentScreen, setCurrentScreen }: P
       {/* Tab 3: Meditation Frequency */}
       <TouchableOpacity
         style={styles.tab}
-        onPress={() => setCurrentScreen('meditation')}
+        onPress={() => handlePress('meditation')}
         activeOpacity={0.7}
       >
         <Radio
@@ -76,7 +82,7 @@ export function GlassyBottomNavigationBar({ currentScreen, setCurrentScreen }: P
       {/* Tab 4: Analytics */}
       <TouchableOpacity
         style={styles.tab}
-        onPress={() => setCurrentScreen('stats')}
+        onPress={() => handlePress('stats')}
         activeOpacity={0.7}
       >
         <BarChart3
